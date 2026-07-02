@@ -115,6 +115,47 @@ impl ProbatumContract {
     pub fn get_issuer(env: Env, issuer: Address) -> Option<BytesN<32>> {
         env.storage().persistent().get(&DataKey::Issuer(issuer))
     }
+
+    pub fn anchor_batch(
+        env: Env,
+        issuer: Address,
+        root: BytesN<32>,
+        meta: BytesN<32>,
+        count: u32,
+    ) -> Result<u64, Error> {
+        require_not_paused(&env)?;
+        issuer.require_auth();
+        if !env
+            .storage()
+            .persistent()
+            .has(&DataKey::Issuer(issuer.clone()))
+        {
+            return Err(Error::NotRegistered);
+        }
+        let seq: u64 = env.storage().instance().get(&DataKey::BatchSeq).unwrap_or(0);
+        let batch_id = seq + 1;
+        let batch = Batch {
+            issuer: issuer.clone(),
+            root: root.clone(),
+            meta,
+            count,
+            revoked: false,
+            anchored_at: env.ledger().timestamp(),
+        };
+        env.storage().persistent().set(&DataKey::Batch(batch_id), &batch);
+        env.storage().instance().set(&DataKey::BatchSeq, &batch_id);
+        env.events()
+            .publish((soroban_sdk::symbol_short!("anchor"), issuer, batch_id), root);
+        Ok(batch_id)
+    }
+
+    pub fn get_batch(env: Env, batch_id: u64) -> Option<Batch> {
+        env.storage().persistent().get(&DataKey::Batch(batch_id))
+    }
+
+    pub fn batch_count(env: Env) -> u64 {
+        env.storage().instance().get(&DataKey::BatchSeq).unwrap_or(0)
+    }
 }
 
 mod test;

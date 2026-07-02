@@ -1,7 +1,7 @@
 #![cfg(test)]
 use super::*;
 use soroban_sdk::Env;
-use soroban_sdk::testutils::Address as _;
+use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, BytesN};
 
 #[test]
@@ -79,4 +79,31 @@ fn test_register_while_paused_panics() {
     client.pause(&true);
     let issuer = Address::generate(&env);
     client.register_issuer(&issuer, &h(&env, 1));
+}
+
+#[test]
+fn test_anchor_batch() {
+    let (env, client, _admin) = setup();
+    env.ledger().set_timestamp(1_720_000_000);
+    let issuer = Address::generate(&env);
+    client.register_issuer(&issuer, &h(&env, 1));
+    let id1 = client.anchor_batch(&issuer, &h(&env, 10), &h(&env, 11), &500u32);
+    let id2 = client.anchor_batch(&issuer, &h(&env, 20), &h(&env, 21), &50u32);
+    assert_eq!(id1, 1);
+    assert_eq!(id2, 2);
+    assert_eq!(client.batch_count(), 2);
+    let b = client.get_batch(&id1).unwrap();
+    assert_eq!(b.issuer, issuer);
+    assert_eq!(b.root, h(&env, 10));
+    assert_eq!(b.count, 500);
+    assert_eq!(b.revoked, false);
+    assert_eq!(b.anchored_at, 1_720_000_000);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #4)")] // NotRegistered
+fn test_anchor_unregistered_panics() {
+    let (env, client, _admin) = setup();
+    let issuer = Address::generate(&env);
+    client.anchor_batch(&issuer, &h(&env, 10), &h(&env, 11), &1u32);
 }
