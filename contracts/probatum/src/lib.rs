@@ -85,6 +85,36 @@ impl ProbatumContract {
             .get(&DataKey::Paused)
             .unwrap_or(false)
     }
+
+    pub fn register_issuer(env: Env, issuer: Address, profile_hash: BytesN<32>) -> Result<(), Error> {
+        require_not_paused(&env)?;
+        issuer.require_auth();
+        let key = DataKey::Issuer(issuer.clone());
+        if env.storage().persistent().has(&key) {
+            return Err(Error::AlreadyRegistered);
+        }
+        env.storage().persistent().set(&key, &profile_hash);
+        env.events()
+            .publish((soroban_sdk::symbol_short!("issuer"), issuer), profile_hash);
+        Ok(())
+    }
+
+    pub fn update_issuer(env: Env, issuer: Address, profile_hash: BytesN<32>) -> Result<(), Error> {
+        require_not_paused(&env)?;
+        issuer.require_auth();
+        let key = DataKey::Issuer(issuer.clone());
+        if !env.storage().persistent().has(&key) {
+            return Err(Error::NotRegistered);
+        }
+        env.storage().persistent().set(&key, &profile_hash);
+        env.events()
+            .publish((soroban_sdk::symbol_short!("issuer"), issuer), profile_hash);
+        Ok(())
+    }
+
+    pub fn get_issuer(env: Env, issuer: Address) -> Option<BytesN<32>> {
+        env.storage().persistent().get(&DataKey::Issuer(issuer))
+    }
 }
 
 mod test;
