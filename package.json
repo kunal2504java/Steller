@@ -2,6 +2,7 @@
   "name": "candela-probatum",
   "private": true,
   "packageManager": "pnpm@9.15.0",
+  "engines": { "node": ">=20", "pnpm": ">=9" },
   "scripts": {
     "build:contract": "stellar contract build --manifest-path contracts/Cargo.toml",
     "test:contract": "cargo test --manifest-path contracts/Cargo.toml",
