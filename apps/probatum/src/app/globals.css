@@ -13,7 +13,9 @@
   --color-ember: #c96a2e; /* the gradient's middle register        */
   --color-nightviolet: #201431; /* depth edge for gradients          */
   --color-ash: #8a8172; /* muted text on vault                      */
+  --color-ink: #241e14; /* full text on vellum                      */
   --color-inkfaint: #5c5343; /* muted text on vellum                 */
+  --color-card: #faf5ea; /* the certificate artifact itself          */
 
   --font-display: var(--font-fraunces);
   --font-sans: var(--font-grotesk);
