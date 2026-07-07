@@ -36,5 +36,5 @@ $wasmHash = (Get-FileHash $wasm -Algorithm SHA256).Hash.ToLower()
 $out = @{ network = "testnet"; contractId = "$contractId"; wasmHash = $wasmHash;
           adminPublic = "$admin"; deployedAt = (Get-Date).ToUniversalTime().ToString("o") } | ConvertTo-Json
 New-Item -ItemType Directory -Force deployments | Out-Null
-$out | Out-File -Encoding utf8 deployments/testnet.json
+[System.IO.File]::WriteAllText("$PWD\deployments\testnet.json", $out, [System.Text.UTF8Encoding]::new($false))
 Write-Host $out
