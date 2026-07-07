@@ -1,9 +1,11 @@
 import SmoothScroll from "@/components/SmoothScroll";
-import Hero from "@/components/Hero";
-import Problem from "@/components/Problem";
-import CertificateAct from "@/components/CertificateAct";
-import HowItWorks from "@/components/HowItWorks";
-import Vault from "@/components/Vault";
+import ScrollFX from "@/components/clone/ScrollFX";
+import NavPill from "@/components/clone/NavPill";
+import HeroC from "@/components/clone/HeroC";
+import FeatureBento from "@/components/clone/FeatureBento";
+import VerifyStack from "@/components/clone/VerifyStack";
+import CtaFinale from "@/components/clone/CtaFinale";
+import FooterC from "@/components/clone/FooterC";
 import { getChainStats } from "@/lib/chain";
 
 export const revalidate = 120;
@@ -13,13 +15,15 @@ export default async function Home() {
 
   return (
     <SmoothScroll>
+      <ScrollFX />
+      <NavPill />
       <main>
-        <Hero stats={stats} />
-        <Problem />
-        <CertificateAct />
-        <HowItWorks />
-        <Vault contractUrl={stats.contractUrl} network={stats.network} />
+        <HeroC stats={stats} />
+        <FeatureBento />
+        <VerifyStack />
+        <CtaFinale />
       </main>
+      <FooterC stats={stats} />
     </SmoothScroll>
   );
 }

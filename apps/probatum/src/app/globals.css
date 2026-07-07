@@ -18,8 +18,7 @@
   --color-inkfaint: #5c5343; /* muted text on vellum                 */
   --color-card: #faf5ea; /* the certificate artifact itself          */
 
-  --font-display: var(--font-zodiak);
-  --font-sans: var(--font-schibsted);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-fragment);
 }
 
@@ -47,27 +46,204 @@ body {
   outline-offset: 3px;
 }
 
-/* ── display type: Zodiak — old-money contrast, zero AI residue ── */
+/* ── clone type system: Inter, tight, fading like polished metal ─ */
 
-.display {
-  font-family: var(--font-display);
-  font-weight: 640;
-  letter-spacing: -0.01em;
-  line-height: 0.96;
+.fade-title {
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+  background: linear-gradient(
+    180deg,
+    var(--color-vellum) 30%,
+    rgba(239, 231, 216, 0.42) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
-.display-it {
-  font-style: italic;
-  font-weight: 520;
-  letter-spacing: 0;
-}
-
-/* eyebrow labels — always mono, always tracked out, data voice */
+/* eyebrow labels — mono, tracked out, data voice */
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
+}
+
+/* ── metallic pills (the Cryptgen button) — in candle gold ─────── */
+
+.pill-metal {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.8rem 1.6rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-vault);
+  background:
+    radial-gradient(
+      120% 90% at 50% 0%,
+      rgba(255, 244, 214, 0.95) 0%,
+      var(--color-candle-bright) 34%,
+      var(--color-candle) 62%,
+      #a87b28 100%
+    );
+  border: 1px solid rgba(255, 236, 190, 0.55);
+  box-shadow:
+    0 1px 0 rgba(255, 244, 214, 0.65) inset,
+    0 -8px 16px rgba(122, 84, 20, 0.45) inset,
+    0 10px 28px -10px rgba(217, 164, 65, 0.55);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.pill-metal:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255, 244, 214, 0.7) inset,
+    0 -8px 16px rgba(122, 84, 20, 0.4) inset,
+    0 16px 40px -10px rgba(217, 164, 65, 0.7);
+}
+
+.pill-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.8rem 1.6rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--color-vellum);
+  background: rgba(239, 231, 216, 0.04);
+  border: 1px solid rgba(239, 231, 216, 0.14);
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.pill-ghost:hover {
+  border-color: rgba(217, 164, 65, 0.5);
+  background: rgba(239, 231, 216, 0.07);
+}
+
+/* ── glass cards ───────────────────────────────────────────────── */
+
+.glass-card {
+  position: relative;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(239, 231, 216, 0.09);
+  background:
+    radial-gradient(
+      140% 100% at 50% 0%,
+      rgba(239, 231, 216, 0.055) 0%,
+      rgba(239, 231, 216, 0.018) 55%,
+      rgba(239, 231, 216, 0.008) 100%
+    );
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(239, 231, 216, 0.28),
+    transparent
+  );
+}
+
+/* ── structural backgrounds: grid, arc, brackets ───────────────── */
+
+.grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(239, 231, 216, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(239, 231, 216, 0.05) 1px, transparent 1px);
+  background-size: 120px 88px;
+  mask-image: radial-gradient(70% 60% at 50% 45%, #000 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(
+    70% 60% at 50% 45%,
+    #000 30%,
+    transparent 100%
+  );
+}
+
+.arc-glow {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160vw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(217, 164, 65, 0.14) 0%,
+    rgba(194, 46, 77, 0.08) 42%,
+    transparent 68%
+  );
+}
+
+.arc-rim {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140vw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border-top: 1px solid rgba(239, 231, 216, 0.16);
+  box-shadow: 0 -40px 120px -40px rgba(217, 164, 65, 0.35);
+}
+
+/* ── orbit (feature card) ──────────────────────────────────────── */
+
+.orbit-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px dashed rgba(239, 231, 216, 0.14);
+}
+
+.orbit-spin {
+  animation: orbit-rotate 26s linear infinite;
+}
+
+.orbit-spin > * {
+  animation: orbit-counter 26s linear infinite;
+}
+
+@keyframes orbit-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit-counter {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+/* ── dotted globe ──────────────────────────────────────────────── */
+
+.dot-field {
+  background-image: radial-gradient(
+    rgba(239, 231, 216, 0.35) 1.2px,
+    transparent 1.2px
+  );
+  background-size: 14px 14px;
+  mask-image: radial-gradient(closest-side, #000 55%, transparent 78%);
+  -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 78%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-spin,
+  .orbit-spin > * {
+    animation: none;
+  }
 }
 
 /* ── film grain: kills the flat AI-dark look ───────────────────── */

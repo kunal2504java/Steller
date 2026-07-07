@@ -1,30 +1,14 @@
 import type { Metadata } from "next";
-import { Schibsted_Grotesk, Fragment_Mono } from "next/font/google";
-import localFont from "next/font/local";
+import { Inter, Fragment_Mono } from "next/font/google";
 import "./globals.css";
 
-/* Zodiak (ITF via Fontshare) — self-hosted; a serif AI hasn't chewed on */
-const zodiak = localFont({
-  src: [
-    {
-      path: "../fonts/Zodiak-Variable.woff2",
-      weight: "400 900",
-      style: "normal",
-    },
-    {
-      path: "../fonts/Zodiak-VariableItalic.woff2",
-      weight: "400 900",
-      style: "italic",
-    },
-  ],
-  variable: "--font-zodiak",
-});
-
-const schibsted = Schibsted_Grotesk({
+/* Cryptgen-clone direction: Inter carries the whole page */
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-schibsted",
+  variable: "--font-inter",
 });
 
+/* data voice (hashes, tx ids) stays mono */
 const fragment = Fragment_Mono({
   subsets: ["latin"],
   weight: "400",
@@ -48,10 +32,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${zodiak.variable} ${schibsted.variable} ${fragment.variable}`}
-    >
+    <html lang="en" className={`${inter.variable} ${fragment.variable}`}>
       <body className="grain">{children}</body>
     </html>
   );
