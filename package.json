@@ -1,0 +1,13 @@
+{
+  "name": "candela-probatum",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@9.15.0",
+  "engines": { "node": ">=20", "pnpm": ">=9" },
+  "scripts": {
+    "build:contract": "stellar contract build --manifest-path contracts/Cargo.toml",
+    "test:contract": "cargo test --manifest-path contracts/Cargo.toml",
+    "spike": "pnpm --filter spike dev",
+    "spike:test": "pnpm --filter spike test"
+  }
+}

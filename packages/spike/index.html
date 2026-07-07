@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+  <body>
+    <h1>Candela spike</h1>
+    <button id="create">1. Create passkey wallet</button>
+    <button id="register" disabled>2. register_issuer (sponsored)</button>
+    <pre id="log"></pre>
+    <script type="module">
+      import { Buffer } from "buffer";
+      globalThis.Buffer = globalThis.Buffer || Buffer;
+    </script>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
