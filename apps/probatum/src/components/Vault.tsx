@@ -42,7 +42,17 @@ export default function Vault({
   );
 
   return (
-    <section ref={root} className="relative px-6 pt-28 md:px-10 md:pt-40">
+    <section
+      ref={root}
+      className="relative overflow-hidden px-6 pt-28 md:px-10 md:pt-40"
+    >
+      {/* atmosphere returns for the finale */}
+      <div className="aurora" aria-hidden>
+        <span className="aurora-blob blob-violet" style={{ opacity: 0.5 }} />
+        <span className="aurora-blob blob-wine" style={{ opacity: 0.45 }} />
+        <span className="aurora-blob blob-gold" style={{ opacity: 0.18 }} />
+      </div>
+      <div className="relative z-10">
       {/* permanence */}
       <div data-vault-reveal className="mx-auto max-w-4xl text-center">
         <p className="eyebrow mb-4 text-candle/70">The vault</p>
@@ -124,6 +134,7 @@ export default function Vault({
           <span>MIT · BUILT IN INDIA</span>
         </div>
       </footer>
+      </div>
     </section>
   );
 }

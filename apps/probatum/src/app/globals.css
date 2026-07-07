@@ -1,18 +1,19 @@
 @import "tailwindcss";
 
 @theme {
-  /* ── The Scriptorium & The Terminal ─────────────────────────── */
-  --color-vault: #0d0b07; /* candlelit near-black, warm undertone   */
-  --color-soot: #17130c; /* raised surfaces in the dark             */
-  --color-vellum: #efe7d8; /* aged paper                            */
-  --color-parchment: #e4d8c0; /* deeper paper tone                  */
-  --color-candle: #d9a441; /* gold — light, proof                   */
+  /* ── The Scriptorium & The Terminal · palette v2 ─────────────── */
+  --color-vault: #110a18; /* wine-violet night — a colored dark      */
+  --color-soot: #1d1226; /* raised surfaces in the dark              */
+  --color-vellum: #efe7d8; /* aged paper                             */
+  --color-parchment: #e4d8c0; /* deeper paper tone                   */
+  --color-candle: #d9a441; /* gold — light, proof                    */
   --color-candle-bright: #f2c56b;
-  --color-sealwax: #7e1f2b; /* crimson — the act of sealing         */
-  --color-sealwax-hot: #a3283a;
-  --color-ember: #c96a2e; /* the gradient's middle register        */
-  --color-nightviolet: #201431; /* depth edge for gradients          */
-  --color-ash: #8a8172; /* muted text on vault                      */
+  --color-sealwax: #8f1f38; /* the wax itself — richer oxblood       */
+  --color-sealwax-hot: #c22e4d; /* raspberry — the fresh accent      */
+  --color-ember: #d8622f; /* the gradient's middle register          */
+  --color-wine: #6d1a2e; /* aurora blob                              */
+  --color-nightviolet: #3b1d5e; /* aurora blob — royal violet        */
+  --color-ash: #9a8fa0; /* muted text on vault — cool, not muddy     */
   --color-ink: #241e14; /* full text on vellum                      */
   --color-inkfaint: #5c5343; /* muted text on vellum                 */
   --color-card: #faf5ea; /* the certificate artifact itself          */
@@ -71,46 +72,27 @@ body {
 
 /* ── film grain: kills the flat AI-dark look ───────────────────── */
 
+/* Static by design: an animated grain reads as "moving pixels" on
+   bright screens. This one never moves — it only dithers. */
 .grain::after {
   content: "";
   position: fixed;
-  inset: -50%;
-  width: 200%;
-  height: 200%;
+  inset: 0;
   pointer-events: none;
   z-index: 60;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: grain-shift 9s steps(6) infinite;
-}
-
-@keyframes grain-shift {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-  20% {
-    transform: translate(-3%, 2%);
-  }
-  40% {
-    transform: translate(2%, -3%);
-  }
-  60% {
-    transform: translate(-2%, -2%);
-  }
-  80% {
-    transform: translate(3%, 3%);
-  }
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,%3Csvg width='256' height='256' viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
 }
 
 /* ── candleflame gradient text ─────────────────────────────────── */
 
 .flame-text {
   background: linear-gradient(
-    100deg,
+    98deg,
     var(--color-sealwax-hot) 0%,
-    var(--color-ember) 34%,
-    var(--color-candle) 62%,
+    var(--color-ember) 42%,
+    var(--color-candle) 72%,
     var(--color-candle-bright) 100%
   );
   background-clip: text;
@@ -118,25 +100,90 @@ body {
   color: transparent;
 }
 
-/* the hero's ambient glow — a candle in a dark room, not a neon rig */
-.hero-glow {
-  background:
-    radial-gradient(
-      52% 44% at 50% 88%,
-      rgba(217, 164, 65, 0.24) 0%,
-      rgba(201, 106, 46, 0.1) 45%,
-      transparent 72%
-    ),
-    radial-gradient(
-      38% 30% at 50% 96%,
-      rgba(163, 40, 58, 0.28) 0%,
-      transparent 70%
-    ),
-    radial-gradient(
-      120% 90% at 50% -20%,
-      rgba(32, 20, 49, 0.9) 0%,
-      transparent 60%
-    );
+/* ── aurora: gradients as lighting, not decoration ─────────────── */
+/* Rich blurred color fields — hue travel kills banding, static
+   turbulence dithers what's left. */
+
+.aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform;
+  animation: breathe 14s ease-in-out infinite alternate;
+}
+
+.blob-wine {
+  width: 58vw;
+  height: 46vh;
+  left: -12vw;
+  bottom: -18vh;
+  background: var(--color-wine);
+  opacity: 0.75;
+}
+
+.blob-violet {
+  width: 52vw;
+  height: 52vh;
+  right: -16vw;
+  top: -14vh;
+  background: var(--color-nightviolet);
+  opacity: 0.8;
+  animation-delay: -5s;
+}
+
+.blob-ember {
+  width: 34vw;
+  height: 30vh;
+  right: 6vw;
+  bottom: -12vh;
+  background: var(--color-ember);
+  opacity: 0.32;
+  animation-delay: -9s;
+}
+
+.blob-gold {
+  width: 30vw;
+  height: 24vh;
+  left: 50%;
+  bottom: -8vh;
+  transform: translateX(-50%);
+  background: var(--color-candle);
+  opacity: 0.26;
+  animation-delay: -12s;
+}
+
+@keyframes breathe {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(4vw, -3vh, 0) scale(1.12);
+  }
+}
+
+/* fine static noise clipped to the aurora — dithers gradient banding */
+.aurora::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob {
+    animation: none;
+  }
 }
 
 /* ── reduced motion: everything still reads, nothing scrubs ────── */

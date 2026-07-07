@@ -109,10 +109,18 @@ export default function Hero({ stats }: { stats: ChainStats }) {
   return (
     <section
       ref={root}
-      className="hero-glow relative flex h-svh flex-col overflow-hidden"
+      className="relative flex h-svh flex-col overflow-hidden"
     >
+      {/* atmosphere */}
+      <div className="aurora" aria-hidden>
+        <span className="aurora-blob blob-violet" />
+        <span className="aurora-blob blob-wine" />
+        <span className="aurora-blob blob-ember" />
+        <span className="aurora-blob blob-gold" />
+      </div>
+
       {/* nav */}
-      <header className="flex items-center justify-between px-6 py-5 md:px-10">
+      <header className="relative z-10 flex items-center justify-between px-6 py-5 md:px-10">
         <span className="eyebrow text-candle">PROBATUM</span>
         <nav className="flex items-center gap-6">
           <a
@@ -133,7 +141,7 @@ export default function Hero({ stats }: { stats: ChainStats }) {
       {/* headline */}
       <div
         data-hero-copy
-        className="flex flex-col items-center px-6 pt-6 text-center md:pt-10"
+        className="relative z-10 flex flex-col items-center px-6 pt-6 text-center md:pt-10"
       >
         <p className="eyebrow mb-6 text-candle/80">
           Sealed on Stellar — verifiable forever
@@ -176,7 +184,7 @@ export default function Hero({ stats }: { stats: ChainStats }) {
       </div>
 
       {/* the seal, center stage */}
-      <div className="relative mx-auto -mt-2 h-[42svh] min-h-[300px] grow">
+      <div className="relative z-10 mx-auto -mt-2 h-[42svh] min-h-[300px] grow">
         <Seal />
         <p
           data-hero-verdict
@@ -189,7 +197,7 @@ export default function Hero({ stats }: { stats: ChainStats }) {
       {/* live proof strip */}
       <footer
         data-hero-stats
-        className="flex items-center justify-center gap-8 border-t border-vellum/10 px-6 py-4 font-mono text-xs text-ash md:gap-14"
+        className="relative z-10 flex items-center justify-center gap-8 border-t border-vellum/10 px-6 py-4 font-mono text-xs text-ash md:gap-14"
       >
         <span>
           <span className="text-candle">{stats.batches}</span>{" "}
