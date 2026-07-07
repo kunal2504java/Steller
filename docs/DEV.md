@@ -109,3 +109,7 @@ Key findings (what worked, and the traps):
 - **WebAuthn** requires a browser; the regression drives a Chrome CDP virtual
   authenticator (`WebAuthn.addVirtualAuthenticator`). Each run mints a fresh
   passkey/wallet, so it never hits `AlreadyRegistered`.
+
+## Dev server vs production build (2026-07-08)
+
+Never run `pnpm --filter probatum-web build` while its dev server is running: both write to `apps/probatum/.next`, and the build clobbers the dev manifests, producing `TypeError: Cannot read properties of undefined (reading 'call')` / "not in the React Client Manifest" on every page load. Recovery: stop the dev server, delete `apps/probatum/.next`, restart. Note: on Windows, killing the `pnpm dev` wrapper can orphan the `node` child holding port 3000 — check `Get-NetTCPConnection -LocalPort 3000` and kill the owning PID.
