@@ -1,6 +1,6 @@
 #![no_std]
 use soroban_sdk::{
-    contract, contractevent, contracterror, contractimpl, contracttype, Address, Bytes, BytesN,
+    contract, contracterror, contractevent, contractimpl, contracttype, Address, Bytes, BytesN,
     Env, Vec,
 };
 
@@ -173,7 +173,11 @@ impl ProbatumContract {
             .unwrap_or(false)
     }
 
-    pub fn register_issuer(env: Env, issuer: Address, profile_hash: BytesN<32>) -> Result<(), Error> {
+    pub fn register_issuer(
+        env: Env,
+        issuer: Address,
+        profile_hash: BytesN<32>,
+    ) -> Result<(), Error> {
         require_not_paused(&env)?;
         issuer.require_auth();
         let key = DataKey::Issuer(issuer.clone());
@@ -181,7 +185,11 @@ impl ProbatumContract {
             return Err(Error::AlreadyRegistered);
         }
         env.storage().persistent().set(&key, &profile_hash);
-        IssuerRegistered { issuer, profile_hash }.publish(&env);
+        IssuerRegistered {
+            issuer,
+            profile_hash,
+        }
+        .publish(&env);
         Ok(())
     }
 
@@ -193,7 +201,11 @@ impl ProbatumContract {
             return Err(Error::NotRegistered);
         }
         env.storage().persistent().set(&key, &profile_hash);
-        IssuerRegistered { issuer, profile_hash }.publish(&env);
+        IssuerRegistered {
+            issuer,
+            profile_hash,
+        }
+        .publish(&env);
         Ok(())
     }
 
@@ -217,7 +229,11 @@ impl ProbatumContract {
         {
             return Err(Error::NotRegistered);
         }
-        let seq: u64 = env.storage().instance().get(&DataKey::BatchSeq).unwrap_or(0);
+        let seq: u64 = env
+            .storage()
+            .instance()
+            .get(&DataKey::BatchSeq)
+            .unwrap_or(0);
         let batch_id = seq + 1;
         let batch = Batch {
             issuer: issuer.clone(),
@@ -227,9 +243,16 @@ impl ProbatumContract {
             revoked: false,
             anchored_at: env.ledger().timestamp(),
         };
-        env.storage().persistent().set(&DataKey::Batch(batch_id), &batch);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Batch(batch_id), &batch);
         env.storage().instance().set(&DataKey::BatchSeq, &batch_id);
-        BatchAnchored { issuer, batch_id, root }.publish(&env);
+        BatchAnchored {
+            issuer,
+            batch_id,
+            root,
+        }
+        .publish(&env);
         Ok(batch_id)
     }
 
@@ -238,7 +261,10 @@ impl ProbatumContract {
     }
 
     pub fn batch_count(env: Env) -> u64 {
-        env.storage().instance().get(&DataKey::BatchSeq).unwrap_or(0)
+        env.storage()
+            .instance()
+            .get(&DataKey::BatchSeq)
+            .unwrap_or(0)
     }
 
     pub fn revoke_batch(env: Env, issuer: Address, batch_id: u64) -> Result<(), Error> {
@@ -246,7 +272,9 @@ impl ProbatumContract {
         issuer.require_auth();
         let mut batch = load_batch_checked(&env, &issuer, batch_id)?;
         batch.revoked = true;
-        env.storage().persistent().set(&DataKey::Batch(batch_id), &batch);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Batch(batch_id), &batch);
         BatchRevoked { batch_id }.publish(&env);
         Ok(())
     }
@@ -263,7 +291,11 @@ impl ProbatumContract {
         env.storage()
             .persistent()
             .set(&DataKey::RevokedLeaf(batch_id, leaf_hash.clone()), &true);
-        LeafRevoked { batch_id, leaf_hash }.publish(&env);
+        LeafRevoked {
+            batch_id,
+            leaf_hash,
+        }
+        .publish(&env);
         Ok(())
     }
 
@@ -318,12 +350,19 @@ impl ProbatumContract {
         env.storage()
             .instance()
             .set(&soroban_sdk::symbol_short!("claims"), &(claims + 1));
-        CertClaimed { batch_id, recipient, leaf_hash }.publish(&env);
+        CertClaimed {
+            batch_id,
+            recipient,
+            leaf_hash,
+        }
+        .publish(&env);
         Ok(())
     }
 
     pub fn claim_of(env: Env, batch_id: u64, leaf_hash: BytesN<32>) -> Option<Address> {
-        env.storage().persistent().get(&DataKey::Claim(batch_id, leaf_hash))
+        env.storage()
+            .persistent()
+            .get(&DataKey::Claim(batch_id, leaf_hash))
     }
 
     pub fn claim_count(env: Env) -> u64 {

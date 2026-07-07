@@ -1,8 +1,8 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::Env;
 use soroban_sdk::testutils::{Address as _, Ledger};
-use soroban_sdk::{Address, BytesN, Bytes};
+use soroban_sdk::Env;
+use soroban_sdk::{Address, Bytes, BytesN};
 
 #[test]
 fn test_version() {
