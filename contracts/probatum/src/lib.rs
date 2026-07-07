@@ -1,6 +1,7 @@
 #![no_std]
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, Address, Bytes, BytesN, Env, Vec,
+    contract, contractevent, contracterror, contractimpl, contracttype, Address, Bytes, BytesN,
+    Env, Vec,
 };
 
 #[contracterror]
@@ -40,6 +41,64 @@ pub enum DataKey {
     Batch(u64),
     RevokedLeaf(u64, BytesN<32>),
     Claim(u64, BytesN<32>),
+}
+
+// --- Events ---
+// Typed replacements for the deprecated `env.events().publish(...)` calls.
+// Each struct carries the same semantic content as the old (topic-tuple, data)
+// pair it replaces; `data_format = "single-value"` keeps the data payload as a
+// single raw value (or Void when there are no data fields), matching how the
+// legacy code published a bare value rather than a Map/Vec.
+//
+// Default static topic is the struct name in snake_case, e.g. `IssuerRegistered`
+// publishes under topic `issuer_registered`.
+
+/// Emitted when an issuer profile hash is registered or updated.
+/// Topics: (`issuer_registered`, issuer). Data: profile_hash.
+#[contractevent(data_format = "single-value")]
+pub struct IssuerRegistered {
+    #[topic]
+    pub issuer: Address,
+    pub profile_hash: BytesN<32>,
+}
+
+/// Emitted when a new batch is anchored.
+/// Topics: (`batch_anchored`, issuer, batch_id). Data: root.
+#[contractevent(data_format = "single-value")]
+pub struct BatchAnchored {
+    #[topic]
+    pub issuer: Address,
+    #[topic]
+    pub batch_id: u64,
+    pub root: BytesN<32>,
+}
+
+/// Emitted when a whole batch is revoked.
+/// Topics: (`batch_revoked`, batch_id). Data: none (Void).
+#[contractevent(data_format = "single-value")]
+pub struct BatchRevoked {
+    #[topic]
+    pub batch_id: u64,
+}
+
+/// Emitted when a single leaf within a batch is revoked.
+/// Topics: (`leaf_revoked`, batch_id). Data: leaf_hash.
+#[contractevent(data_format = "single-value")]
+pub struct LeafRevoked {
+    #[topic]
+    pub batch_id: u64,
+    pub leaf_hash: BytesN<32>,
+}
+
+/// Emitted when a recipient successfully claims a certificate leaf.
+/// Topics: (`cert_claimed`, batch_id, recipient). Data: leaf_hash.
+#[contractevent(data_format = "single-value")]
+pub struct CertClaimed {
+    #[topic]
+    pub batch_id: u64,
+    #[topic]
+    pub recipient: Address,
+    pub leaf_hash: BytesN<32>,
 }
 
 fn require_not_paused(env: &Env) -> Result<(), Error> {
@@ -122,8 +181,7 @@ impl ProbatumContract {
             return Err(Error::AlreadyRegistered);
         }
         env.storage().persistent().set(&key, &profile_hash);
-        env.events()
-            .publish((soroban_sdk::symbol_short!("issuer"), issuer), profile_hash);
+        IssuerRegistered { issuer, profile_hash }.publish(&env);
         Ok(())
     }
 
@@ -135,8 +193,7 @@ impl ProbatumContract {
             return Err(Error::NotRegistered);
         }
         env.storage().persistent().set(&key, &profile_hash);
-        env.events()
-            .publish((soroban_sdk::symbol_short!("issuer"), issuer), profile_hash);
+        IssuerRegistered { issuer, profile_hash }.publish(&env);
         Ok(())
     }
 
@@ -172,8 +229,7 @@ impl ProbatumContract {
         };
         env.storage().persistent().set(&DataKey::Batch(batch_id), &batch);
         env.storage().instance().set(&DataKey::BatchSeq, &batch_id);
-        env.events()
-            .publish((soroban_sdk::symbol_short!("anchor"), issuer, batch_id), root);
+        BatchAnchored { issuer, batch_id, root }.publish(&env);
         Ok(batch_id)
     }
 
@@ -191,8 +247,7 @@ impl ProbatumContract {
         let mut batch = load_batch_checked(&env, &issuer, batch_id)?;
         batch.revoked = true;
         env.storage().persistent().set(&DataKey::Batch(batch_id), &batch);
-        env.events()
-            .publish((soroban_sdk::symbol_short!("revokeb"), batch_id), ());
+        BatchRevoked { batch_id }.publish(&env);
         Ok(())
     }
 
@@ -208,8 +263,7 @@ impl ProbatumContract {
         env.storage()
             .persistent()
             .set(&DataKey::RevokedLeaf(batch_id, leaf_hash.clone()), &true);
-        env.events()
-            .publish((soroban_sdk::symbol_short!("revokel"), batch_id), leaf_hash);
+        LeafRevoked { batch_id, leaf_hash }.publish(&env);
         Ok(())
     }
 
@@ -264,8 +318,7 @@ impl ProbatumContract {
         env.storage()
             .instance()
             .set(&soroban_sdk::symbol_short!("claims"), &(claims + 1));
-        env.events()
-            .publish((soroban_sdk::symbol_short!("claim"), batch_id, recipient), leaf_hash);
+        CertClaimed { batch_id, recipient, leaf_hash }.publish(&env);
         Ok(())
     }
 
