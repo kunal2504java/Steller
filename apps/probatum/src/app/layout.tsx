@@ -1,21 +1,34 @@
 import type { Metadata } from "next";
-import { Fraunces, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Schibsted_Grotesk, Fragment_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-fraunces",
-  axes: ["SOFT", "WONK", "opsz"],
+/* Zodiak (ITF via Fontshare) — self-hosted; a serif AI hasn't chewed on */
+const zodiak = localFont({
+  src: [
+    {
+      path: "../fonts/Zodiak-Variable.woff2",
+      weight: "400 900",
+      style: "normal",
+    },
+    {
+      path: "../fonts/Zodiak-VariableItalic.woff2",
+      weight: "400 900",
+      style: "italic",
+    },
+  ],
+  variable: "--font-zodiak",
 });
 
-const grotesk = Space_Grotesk({
+const schibsted = Schibsted_Grotesk({
   subsets: ["latin"],
-  variable: "--font-grotesk",
+  variable: "--font-schibsted",
 });
 
-const jetmono = JetBrains_Mono({
+const fragment = Fragment_Mono({
   subsets: ["latin"],
-  variable: "--font-jetmono",
+  weight: "400",
+  variable: "--font-fragment",
 });
 
 export const metadata: Metadata = {
@@ -37,7 +50,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${grotesk.variable} ${jetmono.variable}`}
+      className={`${zodiak.variable} ${schibsted.variable} ${fragment.variable}`}
     >
       <body className="grain">{children}</body>
     </html>

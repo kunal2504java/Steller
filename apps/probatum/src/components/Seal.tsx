@@ -118,7 +118,7 @@ export default function Seal() {
               letterSpacing="4.5"
               fill="#f2c56b"
               fillOpacity="0.7"
-              style={{ fontFamily: "var(--font-jetmono)" }}
+              style={{ fontFamily: "var(--font-fragment)" }}
             >
               <textPath href="#sealRing" startOffset="2%">
                 PROBATUM · EST · PROBATUM · EST ·

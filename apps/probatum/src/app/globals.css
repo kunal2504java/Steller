@@ -17,9 +17,9 @@
   --color-inkfaint: #5c5343; /* muted text on vellum                 */
   --color-card: #faf5ea; /* the certificate artifact itself          */
 
-  --font-display: var(--font-fraunces);
-  --font-sans: var(--font-grotesk);
-  --font-mono: var(--font-jetmono);
+  --font-display: var(--font-zodiak);
+  --font-sans: var(--font-schibsted);
+  --font-mono: var(--font-fragment);
 }
 
 /* ── base ──────────────────────────────────────────────────────── */
@@ -46,24 +46,19 @@ body {
   outline-offset: 3px;
 }
 
-/* ── display type: Fraunces with the wonk turned on ────────────── */
+/* ── display type: Zodiak — old-money contrast, zero AI residue ── */
 
 .display {
   font-family: var(--font-display);
-  font-variation-settings:
-    "SOFT" 40,
-    "WONK" 1;
-  font-weight: 560;
-  letter-spacing: -0.015em;
-  line-height: 0.94;
+  font-weight: 640;
+  letter-spacing: -0.01em;
+  line-height: 0.96;
 }
 
 .display-it {
   font-style: italic;
-  font-variation-settings:
-    "SOFT" 70,
-    "WONK" 1;
-  font-weight: 480;
+  font-weight: 520;
+  letter-spacing: 0;
 }
 
 /* eyebrow labels — always mono, always tracked out, data voice */
