@@ -117,6 +117,9 @@ async function feeBumpAndSubmit(inner: Tx) {
     throw new Error("fee-bump send ERROR: " + JSON.stringify(sent));
   }
   const res = await waitForTx(sent.hash);
+  if (res.status !== "SUCCESS") {
+    throw new Error("fee-bump failed on-chain: " + JSON.stringify(res));
+  }
   return { hash: sent.hash, status: res.status };
 }
 
