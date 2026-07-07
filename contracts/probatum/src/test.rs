@@ -2,7 +2,7 @@
 use super::*;
 use soroban_sdk::Env;
 use soroban_sdk::testutils::{Address as _, Ledger};
-use soroban_sdk::{Address, BytesN};
+use soroban_sdk::{Address, BytesN, Bytes};
 
 #[test]
 fn test_version() {
@@ -132,4 +132,75 @@ fn test_revoke_by_stranger_panics() {
     client.register_issuer(&stranger, &h(&env, 2));
     let bid = client.anchor_batch(&issuer, &h(&env, 10), &h(&env, 11), &10u32);
     client.revoke_batch(&stranger, &bid);
+}
+
+fn pair(env: &Env, a: &BytesN<32>, b: &BytesN<32>) -> BytesN<32> {
+    let (lo, hi) = if a < b { (a, b) } else { (b, a) };
+    let mut buf = Bytes::new(env);
+    buf.append(&Bytes::from_slice(env, &lo.to_array()));
+    buf.append(&Bytes::from_slice(env, &hi.to_array()));
+    env.crypto().sha256(&buf).into()
+}
+
+#[test]
+fn test_claim_with_valid_proof() {
+    let (env, client, _admin) = setup();
+    let issuer = Address::generate(&env);
+    let alice = Address::generate(&env);
+    client.register_issuer(&issuer, &h(&env, 1));
+
+    // 4 leaves; alice owns leaf_a
+    let (la, lb, lc, ld) = (h(&env, 101), h(&env, 102), h(&env, 103), h(&env, 104));
+    let n_ab = pair(&env, &la, &lb);
+    let n_cd = pair(&env, &lc, &ld);
+    let root = pair(&env, &n_ab, &n_cd);
+    let bid = client.anchor_batch(&issuer, &root, &h(&env, 0), &4u32);
+
+    let proof = soroban_sdk::vec![&env, lb.clone(), n_cd.clone()];
+    client.claim(&alice, &bid, &la, &proof);
+    assert_eq!(client.claim_of(&bid, &la), Some(alice.clone()));
+    assert_eq!(client.claim_count(), 1);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #10)")] // InvalidProof
+fn test_claim_bad_proof_panics() {
+    let (env, client, _admin) = setup();
+    let issuer = Address::generate(&env);
+    let alice = Address::generate(&env);
+    client.register_issuer(&issuer, &h(&env, 1));
+    let bid = client.anchor_batch(&issuer, &h(&env, 99), &h(&env, 0), &4u32);
+    let proof = soroban_sdk::vec![&env, h(&env, 1)];
+    client.claim(&alice, &bid, &h(&env, 101), &proof);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #9)")] // AlreadyClaimed
+fn test_double_claim_panics() {
+    let (env, client, _admin) = setup();
+    let issuer = Address::generate(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
+    client.register_issuer(&issuer, &h(&env, 1));
+    let (la, lb) = (h(&env, 101), h(&env, 102));
+    let root = pair(&env, &la, &lb);
+    let bid = client.anchor_batch(&issuer, &root, &h(&env, 0), &2u32);
+    let proof = soroban_sdk::vec![&env, lb.clone()];
+    client.claim(&alice, &bid, &la, &proof);
+    client.claim(&bob, &bid, &la, &proof);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #8)")] // LeafRevoked
+fn test_claim_revoked_leaf_panics() {
+    let (env, client, _admin) = setup();
+    let issuer = Address::generate(&env);
+    let alice = Address::generate(&env);
+    client.register_issuer(&issuer, &h(&env, 1));
+    let (la, lb) = (h(&env, 101), h(&env, 102));
+    let root = pair(&env, &la, &lb);
+    let bid = client.anchor_batch(&issuer, &root, &h(&env, 0), &2u32);
+    client.revoke_leaf(&issuer, &bid, &la);
+    let proof = soroban_sdk::vec![&env, lb.clone()];
+    client.claim(&alice, &bid, &la, &proof);
 }

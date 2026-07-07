@@ -66,6 +66,22 @@ fn load_batch_checked(env: &Env, issuer: &Address, batch_id: u64) -> Result<Batc
     Ok(batch)
 }
 
+fn hash_pair(env: &Env, a: &BytesN<32>, b: &BytesN<32>) -> BytesN<32> {
+    let (lo, hi) = if a < b { (a, b) } else { (b, a) };
+    let mut buf = Bytes::new(env);
+    buf.append(&Bytes::from_slice(env, &lo.to_array()));
+    buf.append(&Bytes::from_slice(env, &hi.to_array()));
+    env.crypto().sha256(&buf).into()
+}
+
+fn verify_proof(env: &Env, leaf: &BytesN<32>, proof: &Vec<BytesN<32>>, root: &BytesN<32>) -> bool {
+    let mut node = leaf.clone();
+    for sib in proof.iter() {
+        node = hash_pair(env, &node, &sib);
+    }
+    node == *root
+}
+
 #[contract]
 pub struct ProbatumContract;
 
@@ -210,6 +226,58 @@ impl ProbatumContract {
             .persistent()
             .get(&DataKey::RevokedLeaf(batch_id, leaf_hash))
             .unwrap_or(false)
+    }
+
+    pub fn claim(
+        env: Env,
+        recipient: Address,
+        batch_id: u64,
+        leaf_hash: BytesN<32>,
+        proof: Vec<BytesN<32>>,
+    ) -> Result<(), Error> {
+        require_not_paused(&env)?;
+        recipient.require_auth();
+        let batch: Batch = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Batch(batch_id))
+            .ok_or(Error::BatchNotFound)?;
+        if batch.revoked {
+            return Err(Error::BatchRevoked);
+        }
+        if Self::is_leaf_revoked(env.clone(), batch_id, leaf_hash.clone()) {
+            return Err(Error::LeafRevoked);
+        }
+        let claim_key = DataKey::Claim(batch_id, leaf_hash.clone());
+        if env.storage().persistent().has(&claim_key) {
+            return Err(Error::AlreadyClaimed);
+        }
+        if !verify_proof(&env, &leaf_hash, &proof, &batch.root) {
+            return Err(Error::InvalidProof);
+        }
+        env.storage().persistent().set(&claim_key, &recipient);
+        let claims: u64 = env
+            .storage()
+            .instance()
+            .get(&soroban_sdk::symbol_short!("claims"))
+            .unwrap_or(0);
+        env.storage()
+            .instance()
+            .set(&soroban_sdk::symbol_short!("claims"), &(claims + 1));
+        env.events()
+            .publish((soroban_sdk::symbol_short!("claim"), batch_id, recipient), leaf_hash);
+        Ok(())
+    }
+
+    pub fn claim_of(env: Env, batch_id: u64, leaf_hash: BytesN<32>) -> Option<Address> {
+        env.storage().persistent().get(&DataKey::Claim(batch_id, leaf_hash))
+    }
+
+    pub fn claim_count(env: Env) -> u64 {
+        env.storage()
+            .instance()
+            .get(&soroban_sdk::symbol_short!("claims"))
+            .unwrap_or(0)
     }
 }
 
