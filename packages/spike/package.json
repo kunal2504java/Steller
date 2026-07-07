@@ -1,0 +1,21 @@
+{
+  "name": "spike",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@stellar/stellar-base": "14.1.0",
+    "@stellar/stellar-sdk": "14.6.1",
+    "buffer": "6.0.3",
+    "passkey-kit": "0.11.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50",
+    "@types/node": "^22",
+    "typescript": "^5",
+    "vite": "^6"
+  }
+}
