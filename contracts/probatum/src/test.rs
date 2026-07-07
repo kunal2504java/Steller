@@ -107,3 +107,29 @@ fn test_anchor_unregistered_panics() {
     let issuer = Address::generate(&env);
     client.anchor_batch(&issuer, &h(&env, 10), &h(&env, 11), &1u32);
 }
+
+#[test]
+fn test_revocation() {
+    let (env, client, _admin) = setup();
+    let issuer = Address::generate(&env);
+    client.register_issuer(&issuer, &h(&env, 1));
+    let bid = client.anchor_batch(&issuer, &h(&env, 10), &h(&env, 11), &10u32);
+    assert_eq!(client.is_batch_revoked(&bid), false);
+    assert_eq!(client.is_leaf_revoked(&bid, &h(&env, 42)), false);
+    client.revoke_leaf(&issuer, &bid, &h(&env, 42));
+    assert_eq!(client.is_leaf_revoked(&bid, &h(&env, 42)), true);
+    client.revoke_batch(&issuer, &bid);
+    assert_eq!(client.is_batch_revoked(&bid), true);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #6)")] // NotBatchIssuer
+fn test_revoke_by_stranger_panics() {
+    let (env, client, _admin) = setup();
+    let issuer = Address::generate(&env);
+    let stranger = Address::generate(&env);
+    client.register_issuer(&issuer, &h(&env, 1));
+    client.register_issuer(&stranger, &h(&env, 2));
+    let bid = client.anchor_batch(&issuer, &h(&env, 10), &h(&env, 11), &10u32);
+    client.revoke_batch(&stranger, &bid);
+}

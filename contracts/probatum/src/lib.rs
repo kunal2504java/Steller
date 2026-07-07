@@ -54,6 +54,18 @@ fn require_not_paused(env: &Env) -> Result<(), Error> {
     Ok(())
 }
 
+fn load_batch_checked(env: &Env, issuer: &Address, batch_id: u64) -> Result<Batch, Error> {
+    let batch: Batch = env
+        .storage()
+        .persistent()
+        .get(&DataKey::Batch(batch_id))
+        .ok_or(Error::BatchNotFound)?;
+    if batch.issuer != *issuer {
+        return Err(Error::NotBatchIssuer);
+    }
+    Ok(batch)
+}
+
 #[contract]
 pub struct ProbatumContract;
 
@@ -155,6 +167,49 @@ impl ProbatumContract {
 
     pub fn batch_count(env: Env) -> u64 {
         env.storage().instance().get(&DataKey::BatchSeq).unwrap_or(0)
+    }
+
+    pub fn revoke_batch(env: Env, issuer: Address, batch_id: u64) -> Result<(), Error> {
+        require_not_paused(&env)?;
+        issuer.require_auth();
+        let mut batch = load_batch_checked(&env, &issuer, batch_id)?;
+        batch.revoked = true;
+        env.storage().persistent().set(&DataKey::Batch(batch_id), &batch);
+        env.events()
+            .publish((soroban_sdk::symbol_short!("revokeb"), batch_id), ());
+        Ok(())
+    }
+
+    pub fn revoke_leaf(
+        env: Env,
+        issuer: Address,
+        batch_id: u64,
+        leaf_hash: BytesN<32>,
+    ) -> Result<(), Error> {
+        require_not_paused(&env)?;
+        issuer.require_auth();
+        load_batch_checked(&env, &issuer, batch_id)?;
+        env.storage()
+            .persistent()
+            .set(&DataKey::RevokedLeaf(batch_id, leaf_hash.clone()), &true);
+        env.events()
+            .publish((soroban_sdk::symbol_short!("revokel"), batch_id), leaf_hash);
+        Ok(())
+    }
+
+    pub fn is_batch_revoked(env: Env, batch_id: u64) -> bool {
+        env.storage()
+            .persistent()
+            .get(&DataKey::Batch(batch_id))
+            .map(|b: Batch| b.revoked)
+            .unwrap_or(false)
+    }
+
+    pub fn is_leaf_revoked(env: Env, batch_id: u64, leaf_hash: BytesN<32>) -> bool {
+        env.storage()
+            .persistent()
+            .get(&DataKey::RevokedLeaf(batch_id, leaf_hash))
+            .unwrap_or(false)
     }
 }
 
