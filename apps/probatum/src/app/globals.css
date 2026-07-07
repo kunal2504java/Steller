@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── The Scriptorium & The Terminal ─────────────────────────── */
+  --color-vault: #0d0b07; /* candlelit near-black, warm undertone   */
+  --color-soot: #17130c; /* raised surfaces in the dark             */
+  --color-vellum: #efe7d8; /* aged paper                            */
+  --color-parchment: #e4d8c0; /* deeper paper tone                  */
+  --color-candle: #d9a441; /* gold — light, proof                   */
+  --color-candle-bright: #f2c56b;
+  --color-sealwax: #7e1f2b; /* crimson — the act of sealing         */
+  --color-sealwax-hot: #a3283a;
+  --color-ember: #c96a2e; /* the gradient's middle register        */
+  --color-nightviolet: #201431; /* depth edge for gradients          */
+  --color-ash: #8a8172; /* muted text on vault                      */
+  --color-inkfaint: #5c5343; /* muted text on vellum                 */
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-grotesk);
+  --font-mono: var(--font-jetmono);
+}
+
+/* ── base ──────────────────────────────────────────────────────── */
+
+html {
+  scroll-behavior: initial; /* Lenis owns scrolling */
+}
+
+body {
+  background: var(--color-vault);
+  color: var(--color-vellum);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-sealwax);
+  color: var(--color-vellum);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-candle);
+  outline-offset: 3px;
+}
+
+/* ── display type: Fraunces with the wonk turned on ────────────── */
+
+.display {
+  font-family: var(--font-display);
+  font-variation-settings:
+    "SOFT" 40,
+    "WONK" 1;
+  font-weight: 560;
+  letter-spacing: -0.015em;
+  line-height: 0.94;
+}
+
+.display-it {
+  font-style: italic;
+  font-variation-settings:
+    "SOFT" 70,
+    "WONK" 1;
+  font-weight: 480;
+}
+
+/* eyebrow labels — always mono, always tracked out, data voice */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* ── film grain: kills the flat AI-dark look ───────────────────── */
+
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-shift 9s steps(6) infinite;
+}
+
+@keyframes grain-shift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-3%, 2%);
+  }
+  40% {
+    transform: translate(2%, -3%);
+  }
+  60% {
+    transform: translate(-2%, -2%);
+  }
+  80% {
+    transform: translate(3%, 3%);
+  }
+}
+
+/* ── candleflame gradient text ─────────────────────────────────── */
+
+.flame-text {
+  background: linear-gradient(
+    100deg,
+    var(--color-sealwax-hot) 0%,
+    var(--color-ember) 34%,
+    var(--color-candle) 62%,
+    var(--color-candle-bright) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* the hero's ambient glow — a candle in a dark room, not a neon rig */
+.hero-glow {
+  background:
+    radial-gradient(
+      52% 44% at 50% 88%,
+      rgba(217, 164, 65, 0.24) 0%,
+      rgba(201, 106, 46, 0.1) 45%,
+      transparent 72%
+    ),
+    radial-gradient(
+      38% 30% at 50% 96%,
+      rgba(163, 40, 58, 0.28) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      120% 90% at 50% -20%,
+      rgba(32, 20, 49, 0.9) 0%,
+      transparent 60%
+    );
+}
+
+/* ── reduced motion: everything still reads, nothing scrubs ────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .grain::after {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
