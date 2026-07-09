@@ -42,6 +42,7 @@ pub enum DataKey {
     Batch(u64),
     RevokedLeaf(u64, BytesN<32>),
     Claim(u64, BytesN<32>),
+    ClaimCount,
 }
 
 // --- Events ---
@@ -149,6 +150,16 @@ fn verify_proof(env: &Env, leaf: &BytesN<32>, proof: &Vec<BytesN<32>>, root: &By
     node == *root
 }
 
+/// ~6 months at 5s/ledger — refreshed on every touch, and by bump_batch.
+const TTL_THRESHOLD: u32 = 1_500_000;
+const TTL_EXTEND_TO: u32 = 3_000_000;
+
+fn bump_persistent(env: &Env, key: &DataKey) {
+    env.storage()
+        .persistent()
+        .extend_ttl(key, TTL_THRESHOLD, TTL_EXTEND_TO);
+}
+
 #[contract]
 pub struct ProbatumContract;
 
@@ -196,6 +207,7 @@ impl ProbatumContract {
             return Err(Error::AlreadyRegistered);
         }
         env.storage().persistent().set(&key, &profile_hash);
+        bump_persistent(&env, &key);
         IssuerRegistered {
             issuer,
             profile_hash,
@@ -212,6 +224,7 @@ impl ProbatumContract {
             return Err(Error::NotRegistered);
         }
         env.storage().persistent().set(&key, &profile_hash);
+        bump_persistent(&env, &key);
         IssuerRegistered {
             issuer,
             profile_hash,
@@ -257,6 +270,7 @@ impl ProbatumContract {
         env.storage()
             .persistent()
             .set(&DataKey::Batch(batch_id), &batch);
+        bump_persistent(&env, &DataKey::Batch(batch_id));
         env.storage().instance().set(&DataKey::BatchSeq, &batch_id);
         BatchAnchored {
             issuer,
@@ -286,6 +300,7 @@ impl ProbatumContract {
         env.storage()
             .persistent()
             .set(&DataKey::Batch(batch_id), &batch);
+        bump_persistent(&env, &DataKey::Batch(batch_id));
         BatchRevoked { batch_id }.publish(&env);
         Ok(())
     }
@@ -302,6 +317,7 @@ impl ProbatumContract {
         env.storage()
             .persistent()
             .set(&DataKey::RevokedLeaf(batch_id, leaf_hash.clone()), &true);
+        bump_persistent(&env, &DataKey::RevokedLeaf(batch_id, leaf_hash.clone()));
         LeafRevoked {
             batch_id,
             leaf_hash,
@@ -353,14 +369,15 @@ impl ProbatumContract {
             return Err(Error::InvalidProof);
         }
         env.storage().persistent().set(&claim_key, &recipient);
+        bump_persistent(&env, &claim_key);
         let claims: u64 = env
             .storage()
             .instance()
-            .get(&soroban_sdk::symbol_short!("claims"))
+            .get(&DataKey::ClaimCount)
             .unwrap_or(0);
         env.storage()
             .instance()
-            .set(&soroban_sdk::symbol_short!("claims"), &(claims + 1));
+            .set(&DataKey::ClaimCount, &(claims + 1));
         CertClaimed {
             batch_id,
             recipient,
@@ -379,8 +396,19 @@ impl ProbatumContract {
     pub fn claim_count(env: Env) -> u64 {
         env.storage()
             .instance()
-            .get(&soroban_sdk::symbol_short!("claims"))
+            .get(&DataKey::ClaimCount)
             .unwrap_or(0)
+    }
+
+    pub fn bump_batch(env: Env, batch_id: u64) -> Result<(), Error> {
+        let batch: Batch = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Batch(batch_id))
+            .ok_or(Error::BatchNotFound)?;
+        bump_persistent(&env, &DataKey::Batch(batch_id));
+        bump_persistent(&env, &DataKey::Issuer(batch.issuer));
+        Ok(())
     }
 }
 

@@ -269,3 +269,19 @@ fn test_pause_emits_event() {
     assert!(!events.is_empty(), "pause must emit an event");
     assert_eq!(client.is_paused(), true);
 }
+
+#[test]
+fn test_bump_batch() {
+    let (env, client, _admin) = setup();
+    let issuer = Address::generate(&env);
+    client.register_issuer(&issuer, &h(&env, 1));
+    let bid = client.anchor_batch(&issuer, &h(&env, 10), &h(&env, 11), &10u32);
+    client.bump_batch(&bid); // must not panic; extends batch + issuer TTL
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #5)")] // BatchNotFound
+fn test_bump_missing_batch_panics() {
+    let (_env, client, _admin) = setup();
+    client.bump_batch(&99u64);
+}
