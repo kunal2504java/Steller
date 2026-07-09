@@ -4,40 +4,38 @@ use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::Env;
 use soroban_sdk::{Address, Bytes, BytesN};
 
-#[test]
-fn test_version() {
-    let env = Env::default();
-    let id = env.register(ProbatumContract, ());
-    let client = ProbatumContractClient::new(&env, &id);
-    assert_eq!(client.version(), 1);
-}
-
 fn setup() -> (Env, ProbatumContractClient<'static>, Address) {
     let env = Env::default();
     env.mock_all_auths();
-    let id = env.register(ProbatumContract, ());
-    let client = ProbatumContractClient::new(&env, &id);
     let admin = Address::generate(&env);
-    client.init(&admin);
+    let id = env.register(ProbatumContract, (admin.clone(),));
+    let client = ProbatumContractClient::new(&env, &id);
     (env, client, admin)
 }
 
 #[test]
-fn test_init_and_pause() {
+fn test_version() {
+    let (_env, client, _admin) = setup();
+    assert_eq!(client.version(), 2);
+}
+
+#[test]
+fn test_constructor_initializes_state() {
+    let (_env, client, _admin) = setup();
+    assert_eq!(client.version(), 2);
+    assert_eq!(client.is_paused(), false);
+    assert_eq!(client.batch_count(), 0);
+    assert_eq!(client.claim_count(), 0);
+}
+
+#[test]
+fn test_pause_toggle() {
     let (_env, client, _admin) = setup();
     assert_eq!(client.is_paused(), false);
     client.pause(&true);
     assert_eq!(client.is_paused(), true);
     client.pause(&false);
     assert_eq!(client.is_paused(), false);
-}
-
-#[test]
-#[should_panic(expected = "Error(Contract, #1)")] // AlreadyInitialized
-fn test_double_init_panics() {
-    let (env, client, _admin) = setup();
-    let admin2 = Address::generate(&env);
-    client.init(&admin2);
 }
 
 fn h(env: &Env, byte: u8) -> BytesN<32> {

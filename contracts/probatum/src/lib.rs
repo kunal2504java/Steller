@@ -8,7 +8,7 @@ use soroban_sdk::{
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 #[repr(u32)]
 pub enum Error {
-    AlreadyInitialized = 1,
+    AlreadyInitialized = 1, // reserved (v1 init) — discriminants are append-only
     Paused = 2,
     AlreadyRegistered = 3,
     NotRegistered = 4,
@@ -147,17 +147,14 @@ pub struct ProbatumContract;
 #[contractimpl]
 impl ProbatumContract {
     pub fn version(_env: Env) -> u32 {
-        1
+        2
     }
 
-    pub fn init(env: Env, admin: Address) -> Result<(), Error> {
-        if env.storage().instance().has(&DataKey::Admin) {
-            return Err(Error::AlreadyInitialized);
-        }
+    /// Runs atomically at deploy time — no init front-running window.
+    pub fn __constructor(env: Env, admin: Address) {
         env.storage().instance().set(&DataKey::Admin, &admin);
         env.storage().instance().set(&DataKey::Paused, &false);
         env.storage().instance().set(&DataKey::BatchSeq, &0u64);
-        Ok(())
     }
 
     pub fn pause(env: Env, paused: bool) {
