@@ -18,6 +18,7 @@ pub enum Error {
     LeafRevoked = 8,
     AlreadyClaimed = 9,
     InvalidProof = 10,
+    NotInitialized = 11,
 }
 
 #[contracttype]
@@ -101,6 +102,13 @@ pub struct CertClaimed {
     pub leaf_hash: BytesN<32>,
 }
 
+/// Emitted when pause state is toggled.
+/// Topics: (`pause_toggled`). Data: paused.
+#[contractevent(data_format = "single-value")]
+pub struct PauseToggled {
+    pub paused: bool,
+}
+
 fn require_not_paused(env: &Env) -> Result<(), Error> {
     let paused: bool = env
         .storage()
@@ -157,10 +165,16 @@ impl ProbatumContract {
         env.storage().instance().set(&DataKey::BatchSeq, &0u64);
     }
 
-    pub fn pause(env: Env, paused: bool) {
-        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
+    pub fn pause(env: Env, paused: bool) -> Result<(), Error> {
+        let admin: Address = env
+            .storage()
+            .instance()
+            .get(&DataKey::Admin)
+            .ok_or(Error::NotInitialized)?;
         admin.require_auth();
         env.storage().instance().set(&DataKey::Paused, &paused);
+        PauseToggled { paused }.publish(&env);
+        Ok(())
     }
 
     pub fn is_paused(env: Env) -> bool {

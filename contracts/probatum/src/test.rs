@@ -1,6 +1,6 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::testutils::{Address as _, Ledger};
+use soroban_sdk::testutils::{Address as _, Events, Ledger};
 use soroban_sdk::Env;
 use soroban_sdk::{Address, Bytes, BytesN};
 
@@ -259,4 +259,13 @@ fn test_claim_revoked_leaf_panics() {
     client.revoke_leaf(&issuer, &bid, &la);
     let proof = soroban_sdk::vec![&env, lb.clone()];
     client.claim(&alice, &bid, &la, &proof);
+}
+
+#[test]
+fn test_pause_emits_event() {
+    let (env, client, _admin) = setup();
+    client.pause(&true);
+    let events = env.events().all();
+    assert!(!events.is_empty(), "pause must emit an event");
+    assert_eq!(client.is_paused(), true);
 }
