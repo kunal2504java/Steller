@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 @theme {
-  /* ── The Scriptorium & The Terminal · palette v2 ─────────────── */
-  --color-vault: #110a18; /* wine-violet night — a colored dark      */
-  --color-soot: #1d1226; /* raised surfaces in the dark              */
-  --color-vellum: #efe7d8; /* aged paper                             */
-  --color-parchment: #e4d8c0; /* deeper paper tone                   */
-  --color-candle: #d9a441; /* gold — light, proof                    */
-  --color-candle-bright: #f2c56b;
-  --color-sealwax: #8f1f38; /* the wax itself — richer oxblood       */
-  --color-sealwax-hot: #c22e4d; /* raspberry — the fresh accent      */
-  --color-ember: #d8622f; /* the gradient's middle register          */
-  --color-wine: #6d1a2e; /* aurora blob                              */
-  --color-nightviolet: #3b1d5e; /* aurora blob — royal violet        */
-  --color-ash: #9a8fa0; /* muted text on vault — cool, not muddy     */
+  /* ── Cryptgen-clone palette: true black, polished silver ─────── */
+  --color-vault: #000000; /* the clone's black                       */
+  --color-soot: #101012; /* raised surfaces                          */
+  --color-vellum: #f4f4f5; /* cold white text                        */
+  --color-parchment: #d4d4d8; /* secondary silver                    */
+  --color-candle: #e4e4e7; /* was gold — now polished silver         */
+  --color-candle-bright: #ffffff;
+  --color-sealwax: #8f1f38; /* brand wax — logo mark only            */
+  --color-sealwax-hot: #c22e4d; /* functional red (revoked/tampered) */
+  --color-ember: #a1a1aa; /* neutral mid register                    */
+  --color-wine: #18181b; /* dim monochrome bloom                     */
+  --color-nightviolet: #131316; /* dim monochrome bloom              */
+  --color-ash: #8f8f96; /* muted gray text                           */
   --color-ink: #241e14; /* full text on vellum                      */
   --color-inkfaint: #5c5343; /* muted text on vellum                 */
   --color-card: #faf5ea; /* the certificate artifact itself          */
@@ -81,20 +81,21 @@ body {
   padding: 0.8rem 1.6rem;
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--color-vault);
+  color: #fff;
   background:
     radial-gradient(
-      120% 90% at 50% 0%,
-      rgba(255, 244, 214, 0.95) 0%,
-      var(--color-candle-bright) 34%,
-      var(--color-candle) 62%,
-      #a87b28 100%
-    );
-  border: 1px solid rgba(255, 236, 190, 0.55);
+      130% 120% at 50% -20%,
+      rgba(255, 255, 255, 0.32) 0%,
+      rgba(255, 255, 255, 0.08) 38%,
+      rgba(10, 10, 12, 0.9) 70%,
+      #000 100%
+    ),
+    #0a0a0c;
+  border: 1px solid rgba(255, 255, 255, 0.22);
   box-shadow:
-    0 1px 0 rgba(255, 244, 214, 0.65) inset,
-    0 -8px 16px rgba(122, 84, 20, 0.45) inset,
-    0 10px 28px -10px rgba(217, 164, 65, 0.55);
+    0 1px 0 rgba(255, 255, 255, 0.45) inset,
+    0 -10px 18px rgba(0, 0, 0, 0.85) inset,
+    0 8px 30px -8px rgba(255, 255, 255, 0.18);
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease;
@@ -103,9 +104,9 @@ body {
 .pill-metal:hover {
   transform: translateY(-1px);
   box-shadow:
-    0 1px 0 rgba(255, 244, 214, 0.7) inset,
-    0 -8px 16px rgba(122, 84, 20, 0.4) inset,
-    0 16px 40px -10px rgba(217, 164, 65, 0.7);
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 -10px 18px rgba(0, 0, 0, 0.8) inset,
+    0 14px 44px -8px rgba(255, 255, 255, 0.28);
 }
 
 .pill-ghost {
@@ -182,8 +183,8 @@ body {
   border-radius: 50%;
   background: radial-gradient(
     closest-side,
-    rgba(217, 164, 65, 0.14) 0%,
-    rgba(194, 46, 77, 0.08) 42%,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.03) 42%,
     transparent 68%
   );
 }
@@ -195,8 +196,9 @@ body {
   width: 140vw;
   aspect-ratio: 1;
   border-radius: 50%;
-  border-top: 1px solid rgba(239, 231, 216, 0.16);
-  box-shadow: 0 -40px 120px -40px rgba(217, 164, 65, 0.35);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 -40px 140px -30px rgba(255, 255, 255, 0.25);
+  background: #000;
 }
 
 /* ── orbit (feature card) ──────────────────────────────────────── */

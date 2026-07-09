@@ -19,7 +19,7 @@ function Spark() {
       <polyline
         points={pts}
         fill="none"
-        stroke="#d9a441"
+        stroke="#d4d4d8"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -28,7 +28,7 @@ function Spark() {
         cx="180"
         cy={46 - (SPARK[SPARK.length - 1] / max) * 40}
         r="3"
-        fill="#f2c56b"
+        fill="#ffffff"
       />
     </svg>
   );
@@ -37,18 +37,16 @@ function Spark() {
 export default function HeroC({ stats }: { stats: ChainStats }) {
   return (
     <header className="relative overflow-hidden pb-10 pt-40 md:pt-48">
-      {/* atmosphere: restrained — one grid, two soft blooms */}
+      {/* atmosphere: the clone's — black, a grid, one soft light */}
       <div className="grid-bg absolute inset-0" aria-hidden />
-      <div className="aurora" aria-hidden>
-        <span
-          className="aurora-blob blob-violet"
-          style={{ opacity: 0.4, width: "46vw" }}
-        />
-        <span
-          className="aurora-blob blob-wine"
-          style={{ opacity: 0.35, width: "44vw" }}
-        />
-      </div>
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[60vh]"
+        style={{
+          background:
+            "radial-gradient(60% 50% at 50% 0%, rgba(255,255,255,0.06) 0%, transparent 70%)",
+        }}
+        aria-hidden
+      />
 
       <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
         <p data-reveal className="eyebrow mb-6 text-candle/80">
@@ -118,7 +116,7 @@ export default function HeroC({ stats }: { stats: ChainStats }) {
                 style={{
                   height: `${(b / 24) * 100}%`,
                   backgroundColor:
-                    i === BARS.length - 1 ? "#d9a441" : undefined,
+                    i === BARS.length - 1 ? "#ffffff" : undefined,
                 }}
               />
             ))}
