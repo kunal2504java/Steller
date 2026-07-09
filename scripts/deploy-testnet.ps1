@@ -49,6 +49,8 @@ $anchorOut = stellar contract invoke --id $contractId --source $who --network te
 $ErrorActionPreference = $prevEAP
 if ($LASTEXITCODE -ne 0) { throw "seed anchor_batch failed" }
 $genesisTx = ([regex]::Match($anchorOut, "tx/([0-9a-f]{64})")).Groups[1].Value
+Write-Host "genesisTx captured: $genesisTx"
+if ([string]::IsNullOrWhiteSpace($genesisTx)) { throw "genesisTx capture failed - inspect anchor output above" }
 
 # 6. Smoke test: batch_count should be 1 after seeding
 $batchCount = stellar contract invoke --id $contractId --source $who --network testnet -- batch_count
