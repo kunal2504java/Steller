@@ -1,4 +1,5 @@
 import "server-only";
+import deployment from "../../../../deployments/testnet.json";
 
 /**
  * Read-only contract stats for the landing page. Numbers come from the
@@ -6,7 +7,9 @@ import "server-only";
  * an RPC hiccup can never break the page.
  */
 
-const CONTRACT_ID = "CBDHK6NAGQBMWHAA442TJ4W7D2JJL5M5RB5NKA4PVZSWQAUVQ2A4CQSF";
+const CONTRACT_ID = deployment.contractId;
+const NETWORK = deployment.network;
+const GENESIS_TX = deployment.genesisTx;
 const RPC_URL = "https://soroban-testnet.stellar.org";
 const NETWORK_PASSPHRASE = "Test SDF Network ; September 2015";
 // Any funded account works as a simulation source for read-only calls.
@@ -17,13 +20,15 @@ export type ChainStats = {
   claims: string;
   network: string;
   contractUrl: string;
+  genesisTx: string;
 };
 
 const FALLBACK: ChainStats = {
   batches: "—",
   claims: "—",
-  network: "testnet",
+  network: NETWORK,
   contractUrl: `https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}`,
+  genesisTx: GENESIS_TX,
 };
 
 async function simulateRead(fn: "batch_count" | "claim_count"): Promise<bigint> {

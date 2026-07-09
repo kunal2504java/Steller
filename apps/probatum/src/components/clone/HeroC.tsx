@@ -133,7 +133,7 @@ export default function HeroC({ stats }: { stats: ChainStats }) {
           <p className="mt-3 break-all font-mono text-[10px] leading-relaxed text-ash">
             root 57c49ece…1902
             <br />
-            tx 4c69c26d…78d6
+            tx {stats.genesisTx.slice(0, 8)}…{stats.genesisTx.slice(-4)}
           </p>
           <a
             href={stats.contractUrl}
