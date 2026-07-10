@@ -126,6 +126,11 @@ export async function connectWallet(cfg: CandelaConfig): Promise<CandelaWallet> 
 /**
  * Sign an assembled contract call with the passkey wallet, then submit
  * with the sponsor paying. `assembled` is a bindings-client AssembledTransaction.
+ *
+ * KNOWN GAP: unlike createWallet, this function currently uses only the
+ * sponsor fallback path and ignores cfg.launchtube — a Launchtube-only
+ * config can create wallets but cannot submit contract calls. Route
+ * through send() once a reachable Launchtube exists to test against.
  */
 export async function signAndSubmit(
   cfg: CandelaConfig,

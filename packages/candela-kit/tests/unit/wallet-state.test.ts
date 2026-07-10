@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// A fixed, test-only Stellar secret string — never used on any real network.
+// Test fixture keypair — public key GBPLRZ...HKHP, deliberately unfunded on
+// all networks; safe to commit. (Secret scanners: this is inert by design.)
 const TEST_SPONSOR_SECRET =
   "SAI55JONQ7GFQELII6SBD6UMYYQQBLA7DPC7RK3G7C2IAHD7YSRP3CGN";
 

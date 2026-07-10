@@ -10,8 +10,10 @@ import {
   useCandela,
 } from "../src";
 import { Client as ProbatumClient } from "./bindings";
+import deployment from "../../../deployments/testnet.json";
 
-const CONTRACT_ID = import.meta.env.VITE_CONTRACT_ID as string;
+const CONTRACT_ID =
+  (import.meta.env.VITE_CONTRACT_ID as string | undefined) || deployment.contractId;
 const FALLBACK_SECRET = import.meta.env.VITE_FALLBACK_SECRET as string;
 
 // The register_issuer tx is built with the SPONSOR as the tx source so the
