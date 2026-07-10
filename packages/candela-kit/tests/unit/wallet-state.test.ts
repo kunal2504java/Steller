@@ -122,4 +122,26 @@ describe("signAndSubmit — wallet-state hydration", () => {
     expect(signMock).toHaveBeenCalledTimes(1);
     expect(result).toEqual({ hash: "deadbeefcafe", status: "SUCCESS" });
   });
+
+  it("re-hydrates on wallet identity mismatch — different contractId triggers connectWallet again", async () => {
+    // First call hydrates the kit with wallet A
+    await signAndSubmit(cfg, wallet, fakeAssembled);
+    connectWalletMock.mockClear();
+    signMock.mockClear();
+
+    // Second call with a different wallet identity
+    const walletB = {
+      contractId: "CDIFFERENTCONTRACTID",
+      keyIdBase64: "different-key-id",
+    };
+    const result = await signAndSubmit(cfg, walletB, fakeAssembled);
+
+    // Identity mismatch detected, connectWallet called again with new keyId
+    expect(connectWalletMock).toHaveBeenCalledTimes(1);
+    expect(connectWalletMock).toHaveBeenCalledWith(
+      expect.objectContaining({ keyId: walletB.keyIdBase64 }),
+    );
+    expect(signMock).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ hash: "deadbeefcafe", status: "SUCCESS" });
+  });
 });

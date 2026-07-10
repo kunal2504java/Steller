@@ -133,11 +133,15 @@ export async function signAndSubmit(
   assembled: any,
 ): Promise<{ hash: string; status: string }> {
   const kit = kitFor(cfg);
-  if (kit.wallet == null) {
+  if (kit.wallet == null || kit.wallet.options.contractId !== wallet.contractId) {
     // Page-reload session: this (possibly memoized) kit instance never ran
     // createWallet()/connectWallet(), so `kit.wallet` is still unset and
     // `kit.sign()` would throw. Hydrate it by re-deriving the wallet client
     // from the already-known keyId.
+    //
+    // Also: if the kit holds a DIFFERENT wallet identity (e.g., after
+    // disconnect → sign-in as another passkey), re-hydrate to prevent
+    // silent identity mismatch.
     //
     // Confirmed from installed passkey-kit@0.11.3 source
     // (node_modules/.pnpm/passkey-kit@0.11.3/**/src/kit.ts, connectWallet()
