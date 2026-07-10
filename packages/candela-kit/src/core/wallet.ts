@@ -12,12 +12,29 @@ import type { CandelaConfig } from "./config";
 
 export type CandelaWallet = { contractId: string; keyIdBase64: string };
 
+// passkey-kit's `PasskeyKit.sign()` unconditionally reads
+// `this.wallet!.options.contractId` (kit.ts ~L452), and `this.wallet` is
+// ONLY ever set as a side effect of `createWallet()` (~L93) or
+// `connectWallet()` (~L221) running on THAT SAME instance. A fresh
+// `new PasskeyKit(...)` per call therefore throws on every `sign()`. Memoize
+// one instance per (rpcUrl, networkPassphrase, walletWasmHash) so a
+// same-session create->sign flow reuses the instance that ran createWallet,
+// and so a hydrated (via connectWallet, see signAndSubmit below) instance
+// stays hydrated for later calls in the same session.
+const kitCache = new Map<string, PasskeyKit>();
+
 function kitFor(cfg: CandelaConfig): PasskeyKit {
-  return new PasskeyKit({
-    rpcUrl: cfg.rpcUrl,
-    networkPassphrase: cfg.networkPassphrase,
-    walletWasmHash: cfg.walletWasmHash,
-  });
+  const cacheKey = `${cfg.rpcUrl}|${cfg.networkPassphrase}|${cfg.walletWasmHash}`;
+  let kit = kitCache.get(cacheKey);
+  if (!kit) {
+    kit = new PasskeyKit({
+      rpcUrl: cfg.rpcUrl,
+      networkPassphrase: cfg.networkPassphrase,
+      walletWasmHash: cfg.walletWasmHash,
+    });
+    kitCache.set(cacheKey, kit);
+  }
+  return kit;
 }
 
 async function waitForTx(server: Server, hash: string) {
@@ -67,7 +84,24 @@ async function send(cfg: CandelaConfig, signedTx: any) {
       launchtubeUrl: cfg.launchtube.url,
       launchtubeJwt: cfg.launchtube.jwt,
     });
-    return server.send(signedTx);
+    const res = await server.send(signedTx);
+    // Defensive, best-effort check: passkey-kit's PasskeyServer.send() already
+    // throws the response body when the Launchtube HTTP call itself is
+    // non-2xx (server.ts `send()`), but a 200 can still carry an
+    // error-shaped JSON payload. The spike never exercised a reachable
+    // Launchtube instance, so this branch is untested against a live
+    // service — revisit the exact error shape once we can test against one.
+    if (
+      res &&
+      typeof res === "object" &&
+      ("error" in res ||
+        "errorResult" in res ||
+        (res as any).status === "ERROR" ||
+        (res as any).status === "FAILED")
+    ) {
+      throw new Error("launchtube submission failed: " + JSON.stringify(res));
+    }
+    return res;
   }
   return feeBumpAndSubmit(cfg, signedTx);
 }
@@ -99,6 +133,25 @@ export async function signAndSubmit(
   assembled: any,
 ): Promise<{ hash: string; status: string }> {
   const kit = kitFor(cfg);
+  if (kit.wallet == null) {
+    // Page-reload session: this (possibly memoized) kit instance never ran
+    // createWallet()/connectWallet(), so `kit.wallet` is still unset and
+    // `kit.sign()` would throw. Hydrate it by re-deriving the wallet client
+    // from the already-known keyId.
+    //
+    // Confirmed from installed passkey-kit@0.11.3 source
+    // (node_modules/.pnpm/passkey-kit@0.11.3/**/src/kit.ts, connectWallet()
+    // ~L157-233): `connectWallet({ keyId })` accepts `keyId` as either a
+    // base64url string or raw Uint8Array (CandelaWallet.keyIdBase64 is the
+    // former). Passing a keyId SKIPS the WebAuthn/biometric prompt — the
+    // `startAuthentication()` call only happens `if (!keyId)` (~L169).
+    // With a keyId supplied, connectWallet instead deterministically
+    // re-derives the contract id from (internal walletPublicKey, keyId) and
+    // confirms it on-chain via `rpc.getContractData` — no user interaction.
+    // The user is still prompted for biometrics later, inside kit.sign() ->
+    // signAuthEntry() -> WebAuthn.startAuthentication().
+    await kit.connectWallet({ keyId: wallet.keyIdBase64 });
+  }
   await kit.sign(assembled, { keyId: wallet.keyIdBase64 });
   const server = new Server(cfg.rpcUrl);
   // enforcing-mode re-simulation so __check_auth is priced (trap #2)
