@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      // passkey-kit + stellar-sdk expect a global Buffer (same polyfill the
+      // spike's index.html set).
+      import { Buffer } from "buffer";
+      globalThis.Buffer = globalThis.Buffer || Buffer;
+    </script>
+    <script type="module" src="/main.tsx"></script>
+  </body>
+</html>
