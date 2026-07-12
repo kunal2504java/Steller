@@ -39,7 +39,7 @@ Unchanged from the product spec and re-asserted here because Plan 3 adds user-fa
 2. **Hero** — headline = the thesis **"Web3 UX should not suck."** Sub: passkey onboarding for Stellar — no seed phrase, no browser extension, no gas. Primary CTA `pill-metal` is a **click-to-copy** `npm i candela-kit`; secondary ghost "See it live →" links to the Probatum demo.
 3. **Terminal animation (centerpiece).** A faux-terminal `glass-card` that runs a scripted sequence:
    - types `pnpm add candela-kit` → `✓ added candela-kit`
-   - flips to a code pane with the **real** minimal usage: wrap in `<CandelaProvider config="testnet">`, drop a `<SignUpButton>`, call `useSubmit()` to sign+submit.
+   - flips to a code pane with the **real** minimal usage: wrap in `<CandelaProvider network="testnet">`, drop a `<SignUpButton>`, call `useSubmit()` to sign+submit.
    - ends on a result line drawn from real testnet artifacts: `passkey created → smart wallet CD67… → sponsored tx ✓`.
    - Implementation: client component, JS-driven typing with a deterministic script (no `Math.random`); `prefers-reduced-motion` renders the final frame statically (no typing). No real network calls — it's an illustrative reenactment of the proven flow, using real API names and real artifact strings.
 4. **How it works** — three honest steps with real (compiling-shape) snippets: (a) passkey → secp256r1 smart wallet; (b) you sponsor fees via Launchtube so the user pays nothing; (c) one hook signs + submits. Copy stays truthful to the kit's actual behavior.

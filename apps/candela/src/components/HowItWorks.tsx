@@ -11,7 +11,7 @@ const STEPS = [
     title: "You sponsor the fees",
     body:
       "Transactions are fee-bumped by your sponsor account (or a relay). The user signs with their fingerprint and pays nothing — not a cent, not a token.",
-    code: "config=\"testnet\"  // you fund it",
+    code: "network=\"testnet\"  // you fund it",
   },
   {
     n: "03",
