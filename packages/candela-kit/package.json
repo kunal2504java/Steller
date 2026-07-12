@@ -1,11 +1,25 @@
 {
   "name": "candela-kit",
   "version": "0.1.0",
-  "private": true,
+  "description": "Passkey onboarding for Stellar — no seed phrase, no extension, no gas. React provider, hooks, and buttons over PasskeyKit + Launchtube.",
+  "license": "MIT",
   "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "LICENSE", "README.md"],
+  "sideEffects": false,
+  "keywords": ["stellar", "passkey", "soroban", "smart-wallet", "webauthn", "react"],
+  "repository": { "type": "git", "url": "https://github.com/kunal2504java/Steller" },
   "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "tsup",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "e2e": "playwright test"
@@ -16,9 +30,7 @@
     "buffer": "6.0.3",
     "passkey-kit": "0.11.3"
   },
-  "peerDependencies": {
-    "react": ">=19"
-  },
+  "peerDependencies": { "react": ">=19" },
   "devDependencies": {
     "@playwright/test": "^1.61",
     "@types/node": "^22",
@@ -27,6 +39,7 @@
     "jsdom": "^25",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "tsup": "^8",
     "typescript": "^5.9.3",
     "vite": "^6",
     "vitest": "^2"
