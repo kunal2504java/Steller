@@ -1,0 +1,402 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Cryptgen-clone palette: true black, polished silver ─────── */
+  --color-vault: #000000; /* the clone's black                       */
+  --color-soot: #101012; /* raised surfaces                          */
+  --color-vellum: #f4f4f5; /* cold white text                        */
+  --color-parchment: #d4d4d8; /* secondary silver                    */
+  --color-candle: #e4e4e7; /* was gold — now polished silver         */
+  --color-candle-bright: #ffffff;
+  --color-sealwax: #8f1f38; /* brand wax — logo mark only            */
+  --color-sealwax-hot: #c22e4d; /* functional red (revoked/tampered) */
+  --color-ember: #a1a1aa; /* neutral mid register                    */
+  --color-wine: #18181b; /* dim monochrome bloom                     */
+  --color-nightviolet: #131316; /* dim monochrome bloom              */
+  --color-ash: #8f8f96; /* muted gray text                           */
+  --color-ink: #241e14; /* full text on vellum                      */
+  --color-inkfaint: #5c5343; /* muted text on vellum                 */
+  --color-card: #faf5ea; /* the certificate artifact itself          */
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-fragment);
+}
+
+/* ── base ──────────────────────────────────────────────────────── */
+
+html {
+  scroll-behavior: initial; /* Lenis owns scrolling */
+}
+
+body {
+  background: var(--color-vault);
+  color: var(--color-vellum);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-sealwax);
+  color: var(--color-vellum);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-candle);
+  outline-offset: 3px;
+}
+
+/* ── clone type system: Inter, tight, fading like polished metal ─ */
+
+.fade-title {
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+  background: linear-gradient(
+    180deg,
+    var(--color-vellum) 30%,
+    rgba(239, 231, 216, 0.42) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* eyebrow labels — mono, tracked out, data voice */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* ── metallic pills (the Cryptgen button) — in candle gold ─────── */
+
+.pill-metal {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.8rem 1.6rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #fff;
+  background:
+    radial-gradient(
+      130% 120% at 50% -20%,
+      rgba(255, 255, 255, 0.32) 0%,
+      rgba(255, 255, 255, 0.08) 38%,
+      rgba(10, 10, 12, 0.9) 70%,
+      #000 100%
+    ),
+    #0a0a0c;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.45) inset,
+    0 -10px 18px rgba(0, 0, 0, 0.85) inset,
+    0 8px 30px -8px rgba(255, 255, 255, 0.18);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.pill-metal:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 -10px 18px rgba(0, 0, 0, 0.8) inset,
+    0 14px 44px -8px rgba(255, 255, 255, 0.28);
+}
+
+.pill-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.8rem 1.6rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--color-vellum);
+  background: rgba(239, 231, 216, 0.04);
+  border: 1px solid rgba(239, 231, 216, 0.14);
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.pill-ghost:hover {
+  border-color: rgba(217, 164, 65, 0.5);
+  background: rgba(239, 231, 216, 0.07);
+}
+
+/* ── glass cards ───────────────────────────────────────────────── */
+
+.glass-card {
+  position: relative;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(239, 231, 216, 0.09);
+  background:
+    radial-gradient(
+      140% 100% at 50% 0%,
+      rgba(239, 231, 216, 0.055) 0%,
+      rgba(239, 231, 216, 0.018) 55%,
+      rgba(239, 231, 216, 0.008) 100%
+    );
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(239, 231, 216, 0.28),
+    transparent
+  );
+}
+
+/* ── structural backgrounds: grid, arc, brackets ───────────────── */
+
+.grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(239, 231, 216, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(239, 231, 216, 0.05) 1px, transparent 1px);
+  background-size: 120px 88px;
+  mask-image: radial-gradient(70% 60% at 50% 45%, #000 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(
+    70% 60% at 50% 45%,
+    #000 30%,
+    transparent 100%
+  );
+}
+
+.arc-glow {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160vw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.03) 42%,
+    transparent 68%
+  );
+}
+
+.arc-rim {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140vw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 -40px 140px -30px rgba(255, 255, 255, 0.25);
+  background: #000;
+}
+
+/* ── orbit (feature card) ──────────────────────────────────────── */
+
+.orbit-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px dashed rgba(239, 231, 216, 0.14);
+}
+
+.orbit-spin {
+  animation: orbit-rotate 26s linear infinite;
+}
+
+.orbit-spin > * {
+  animation: orbit-counter 26s linear infinite;
+}
+
+@keyframes orbit-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit-counter {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+/* ── dotted globe ──────────────────────────────────────────────── */
+
+.dot-field {
+  background-image: radial-gradient(
+    rgba(239, 231, 216, 0.35) 1.2px,
+    transparent 1.2px
+  );
+  background-size: 14px 14px;
+  mask-image: radial-gradient(closest-side, #000 55%, transparent 78%);
+  -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 78%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-spin,
+  .orbit-spin > * {
+    animation: none;
+  }
+}
+
+/* ── film grain: kills the flat AI-dark look ───────────────────── */
+
+/* Static by design: an animated grain reads as "moving pixels" on
+   bright screens. This one never moves — it only dithers. */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,%3Csvg width='256' height='256' viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* ── candleflame gradient text ─────────────────────────────────── */
+
+.flame-text {
+  background: linear-gradient(
+    98deg,
+    var(--color-sealwax-hot) 0%,
+    var(--color-ember) 42%,
+    var(--color-candle) 72%,
+    var(--color-candle-bright) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* ── aurora: gradients as lighting, not decoration ─────────────── */
+/* Rich blurred color fields — hue travel kills banding, static
+   turbulence dithers what's left. */
+
+.aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform;
+  animation: breathe 14s ease-in-out infinite alternate;
+}
+
+.blob-wine {
+  width: 58vw;
+  height: 46vh;
+  left: -12vw;
+  bottom: -18vh;
+  background: var(--color-wine);
+  opacity: 0.75;
+}
+
+.blob-violet {
+  width: 52vw;
+  height: 52vh;
+  right: -16vw;
+  top: -14vh;
+  background: var(--color-nightviolet);
+  opacity: 0.8;
+  animation-delay: -5s;
+}
+
+.blob-ember {
+  width: 34vw;
+  height: 30vh;
+  right: 6vw;
+  bottom: -12vh;
+  background: var(--color-ember);
+  opacity: 0.32;
+  animation-delay: -9s;
+}
+
+.blob-gold {
+  width: 30vw;
+  height: 24vh;
+  left: 50%;
+  bottom: -8vh;
+  transform: translateX(-50%);
+  background: var(--color-candle);
+  opacity: 0.26;
+  animation-delay: -12s;
+}
+
+@keyframes breathe {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(4vw, -3vh, 0) scale(1.12);
+  }
+}
+
+/* fine static noise clipped to the aurora — dithers gradient banding */
+.aurora::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob {
+    animation: none;
+  }
+}
+
+/* ── reduced motion: everything still reads, nothing scrubs ────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .grain::after {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ── terminal (Candela hero centerpiece) ───────────────────────── */
+.term {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+.term-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 9999px;
+}
+.term-caret {
+  display: inline-block;
+  width: 0.55ch;
+  height: 1.05em;
+  translate: 0 0.16em;
+  background: var(--color-vellum);
+  animation: term-blink 1s steps(1) infinite;
+}
+@keyframes term-blink {
+  50% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .term-caret { animation: none; opacity: 0; }
+}
