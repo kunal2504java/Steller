@@ -1,12 +1,29 @@
 import SmoothScroll from "@/components/SmoothScroll";
 import ScrollFX from "@/components/ScrollFX";
+import NavPill from "@/components/NavPill";
+import Hero from "@/components/Hero";
+import Terminal from "@/components/Terminal";
+import HowItWorks from "@/components/HowItWorks";
+import UseCase from "@/components/UseCase";
+import WhyItMatters from "@/components/WhyItMatters";
+import Finale from "@/components/Finale";
+import { getChainStats } from "@/lib/chain";
 
-export default function Home() {
+export const revalidate = 120;
+
+export default async function Home() {
+  const stats = await getChainStats();
   return (
     <SmoothScroll>
       <ScrollFX />
-      <main className="grid min-h-screen place-items-center">
-        <p className="eyebrow text-ash">Candela — scaffolding</p>
+      <NavPill />
+      <main>
+        <Hero />
+        <Terminal />
+        <HowItWorks />
+        <UseCase stats={stats} />
+        <WhyItMatters />
+        <Finale />
       </main>
     </SmoothScroll>
   );
