@@ -1,8 +1,12 @@
 {
-    "deployedAt":  "2026-07-09T21:25:35.4961428Z",
+    "wasmHash":  "2242af37a1d8ec5e2e40c1176eab701694f82339715778f401a880b956ec7943",
+    "demoTx":  "14dcd843ced299bdb5bd19dedb9366aa677e2e0a4368b6db8e4830f258db9758",
+    "demoRoot":  "2bfeccbaa8b27e73aba6a2f228b34717dc6e48ef29c9798ce51685c89f59b6f0",
     "adminPublic":  "GAT3GZE2HZ4CRHMSWI2CFART4DBCSXNSFBX7Z2NOJLNEUF5U37ZDRFBY",
+    "deployedAt":  "2026-07-15T19:46:14.3580696Z",
+    "contractId":  "CC7MQBZ2WOXGLOMX5MDZ4IXT5WHEII7SUK6LMXXKUKOGLARDGG66AOJL",
+    "demoBatchId":  2,
+    "genesisBatchId":  1,
     "network":  "testnet",
-    "wasmHash":  "2b47acadece590b6b231efed676c6339ff85e403523bfb097cdcf6f1e9ffaf41",
-    "genesisTx":  "b1d7d516b4e90f8495a027e43a96ff9ec164b7022abfec0e10eb2fe40f6f8eb8",
-    "contractId":  "CDB6674ZKXTKH6M25CJY75EAOWXE44G7VH3ZI7VNGDZHD475KXDQR3YV"
+    "genesisTx":  "a304f1e36600f675ca6202bc10edecc7e1cd3d4c71ce72e97de747333e486946"
 }

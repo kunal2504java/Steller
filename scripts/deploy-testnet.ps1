@@ -19,7 +19,7 @@ Write-Host "Admin: $admin"
 stellar keys fund $who --network testnet
 if ($LASTEXITCODE -ne 0) { Write-Host "fund skipped (already funded or error)" }
 
-# 3. Build + deploy (constructor-based: v2 contract runs __constructor atomically
+# 3. Build + deploy (constructor-based: v3 contract runs __constructor atomically
 #    at deploy time, no separate init step / no init-front-running window)
 stellar contract build --manifest-path contracts/Cargo.toml
 if ($LASTEXITCODE -ne 0) { throw "contract build failed (exit code $LASTEXITCODE)" }
@@ -28,10 +28,11 @@ $contractId = stellar contract deploy --wasm $wasm --source $who --network testn
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($contractId)) { throw "contract deploy failed (exit code $LASTEXITCODE)" }
 Write-Host "Contract: $contractId"
 
-# 4. Smoke test: version should be 2 (v2 contract)
+# 4. Smoke test: version must be exactly 3
 $version = stellar contract invoke --id $contractId --source $who --network testnet -- version
 if ($LASTEXITCODE -ne 0) { throw "version invoke failed (exit code $LASTEXITCODE)" }
 Write-Host "Version: $version"
+if ([string]$version -ne "3") { throw "expected contract version 3, got $version" }
 
 # 5. Seed: issuer + genesis batch (KAT root — keeps the demo batch claimable)
 $profile = python -c "import hashlib; print(hashlib.sha256(b'probatum.app').hexdigest())"
@@ -52,16 +53,37 @@ $genesisTx = ([regex]::Match($anchorOut, "tx/([0-9a-f]{64})")).Groups[1].Value
 Write-Host "genesisTx captured: $genesisTx"
 if ([string]::IsNullOrWhiteSpace($genesisTx)) { throw "genesisTx capture failed - inspect anchor output above" }
 
-# 6. Smoke test: batch_count should be 1 after seeding
+# 6. Seed the truthful self-contained demo batch used by /verify/[id].
+$demo = Get-Content -Raw "$PSScriptRoot\..\fixtures\probatum-testnet-demo.json" | ConvertFrom-Json
+if ([int]$demo.batchId -ne 2) { throw "demo fixture must target batch 2" }
+$prevEAP = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+$demoOut = stellar contract invoke --id $contractId --source $who --network testnet -- anchor_batch --issuer $admin --root $demo.root --meta $meta --count $demo.count 2>&1 | Out-String
+$ErrorActionPreference = $prevEAP
+if ($LASTEXITCODE -ne 0) { throw "seed demo anchor_batch failed" }
+$demoTx = ([regex]::Match($demoOut, "tx/([0-9a-f]{64})")).Groups[1].Value
+Write-Host "demoTx captured: $demoTx"
+if ([string]::IsNullOrWhiteSpace($demoTx)) { throw "demoTx capture failed - inspect anchor output above" }
+
+# 7. Smoke test: both batches are present and no claims are pre-seeded.
 $batchCount = stellar contract invoke --id $contractId --source $who --network testnet -- batch_count
 if ($LASTEXITCODE -ne 0) { throw "batch_count invoke failed (exit code $LASTEXITCODE)" }
 Write-Host "Batch count: $batchCount"
+if ([string]$batchCount -ne "2") { throw "expected batch_count 2, got $batchCount" }
+$claimCount = stellar contract invoke --id $contractId --source $who --network testnet -- claim_count
+if ($LASTEXITCODE -ne 0) { throw "claim_count invoke failed (exit code $LASTEXITCODE)" }
+if ([string]$claimCount -ne "0") { throw "expected claim_count 0, got $claimCount" }
+$katBatch = stellar contract invoke --id $contractId --source $who --network testnet -- get_batch --batch_id 1
+if ($LASTEXITCODE -ne 0 -or "$katBatch" -notmatch "57c49ece895537b2bf5dfe5ba421bbf7666f12a00d28a81c29ba0faa52cd1902") { throw "KAT batch smoke check failed" }
+$demoBatch = stellar contract invoke --id $contractId --source $who --network testnet -- get_batch --batch_id 2
+if ($LASTEXITCODE -ne 0 -or "$demoBatch" -notmatch $demo.root) { throw "demo batch smoke check failed" }
 
-# 7. Record deployment
+# 8. Record deployment
 $wasmHash = (Get-FileHash $wasm -Algorithm SHA256).Hash.ToLower()
 $out = @{ network = "testnet"; contractId = "$contractId"; wasmHash = $wasmHash;
           adminPublic = "$admin"; deployedAt = (Get-Date).ToUniversalTime().ToString("o");
-          genesisTx = "$genesisTx" } | ConvertTo-Json
+          genesisBatchId = 1; genesisTx = "$genesisTx";
+          demoBatchId = 2; demoTx = "$demoTx"; demoRoot = "$($demo.root)" } | ConvertTo-Json
 New-Item -ItemType Directory -Force deployments | Out-Null
 [System.IO.File]::WriteAllText("$PWD\deployments\testnet.json", $out, [System.Text.UTF8Encoding]::new($false))
 Write-Host $out

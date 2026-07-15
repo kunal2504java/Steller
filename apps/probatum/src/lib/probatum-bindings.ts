@@ -1,7 +1,5 @@
-// Probatum v3 bindings generated from the live testnet contract spec.
-// Contract identity is loaded by consumers from deployments/testnet.json; no id is embedded here.
 import { Buffer } from "buffer";
-import { Address } from "@stellar/stellar-sdk/minimal";
+import { Address } from "@stellar/stellar-sdk";
 import {
   AssembledTransaction,
   Client as ContractClient,
@@ -9,7 +7,7 @@ import {
   MethodOptions,
   Result,
   Spec as ContractSpec,
-} from "@stellar/stellar-sdk/minimal/contract";
+} from "@stellar/stellar-sdk/contract";
 import type {
   u32,
   i32,
@@ -22,9 +20,10 @@ import type {
   Option,
   Timepoint,
   Duration,
-} from "@stellar/stellar-sdk/minimal/contract";
-export * as contract from "@stellar/stellar-sdk/minimal/contract";
-export * as rpc from "@stellar/stellar-sdk/minimal/rpc";
+} from "@stellar/stellar-sdk/contract";
+export * from "@stellar/stellar-sdk";
+export * as contract from "@stellar/stellar-sdk/contract";
+export * as rpc from "@stellar/stellar-sdk/rpc";
 
 if (typeof window !== "undefined") {
   //@ts-ignore Buffer exists
