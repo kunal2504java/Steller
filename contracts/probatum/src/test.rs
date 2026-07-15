@@ -1,8 +1,11 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::testutils::{storage::Instance as _, Address as _, Events, Ledger};
-use soroban_sdk::Env;
+use soroban_sdk::testutils::{
+    storage::{Instance as _, Persistent as _},
+    Address as _, Events, Ledger,
+};
 use soroban_sdk::{Address, Bytes, BytesN};
+use soroban_sdk::{Env, IntoVal, Symbol};
 
 fn setup() -> (Env, ProbatumContractClient<'static>, Address) {
     let env = Env::default();
@@ -282,8 +285,82 @@ fn test_pause_emits_event() {
     let (env, client, _admin) = setup();
     client.pause(&true);
     let events = env.events().all();
-    assert!(!events.is_empty(), "pause must emit an event");
+    assert_eq!(
+        events,
+        soroban_sdk::vec![
+            &env,
+            (
+                client.address.clone(),
+                (Symbol::new(&env, "pause_toggled"), true).into_val(&env),
+                ().into_val(&env),
+            )
+        ]
+    );
     assert_eq!(client.is_paused(), true);
+}
+
+#[test]
+fn test_claim_refreshes_parent_batch_ttl() {
+    let (env, client, _admin) = setup();
+    let issuer = Address::generate(&env);
+    let alice = Address::generate(&env);
+    client.register_issuer(&issuer, &h(&env, 1));
+    let (la, lb) = (h(&env, 101), h(&env, 102));
+    let root = pair(&env, &la, &lb);
+    let bid = client.anchor_batch(&issuer, &root, &h(&env, 0), &2u32);
+    let key = DataKey::Batch(bid);
+    let ttl = env.as_contract(&client.address, || env.storage().persistent().get_ttl(&key));
+    env.ledger()
+        .set_sequence_number(env.ledger().sequence() + ttl - TTL_THRESHOLD + 1);
+    let proof = soroban_sdk::vec![&env, lb];
+    client.claim(&alice, &bid, &la, &proof);
+    let after = env.as_contract(&client.address, || env.storage().persistent().get_ttl(&key));
+    assert!(after >= TTL_EXTEND_TO - 1, "batch TTL was only {after}");
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #2)")]
+fn test_anchor_while_paused_panics() {
+    let (env, client, _admin) = setup();
+    let issuer = Address::generate(&env);
+    client.register_issuer(&issuer, &h(&env, 1));
+    client.pause(&true);
+    client.anchor_batch(&issuer, &h(&env, 10), &h(&env, 11), &1u32);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #2)")]
+fn test_claim_while_paused_panics() {
+    let (env, client, _admin) = setup();
+    let issuer = Address::generate(&env);
+    let alice = Address::generate(&env);
+    client.register_issuer(&issuer, &h(&env, 1));
+    let (la, lb) = (h(&env, 101), h(&env, 102));
+    let bid = client.anchor_batch(&issuer, &pair(&env, &la, &lb), &h(&env, 0), &2u32);
+    client.pause(&true);
+    client.claim(&alice, &bid, &la, &soroban_sdk::vec![&env, lb]);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #2)")]
+fn test_revoke_batch_while_paused_panics() {
+    let (env, client, _admin) = setup();
+    let issuer = Address::generate(&env);
+    client.register_issuer(&issuer, &h(&env, 1));
+    let bid = client.anchor_batch(&issuer, &h(&env, 10), &h(&env, 11), &1u32);
+    client.pause(&true);
+    client.revoke_batch(&issuer, &bid);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #2)")]
+fn test_revoke_leaf_while_paused_panics() {
+    let (env, client, _admin) = setup();
+    let issuer = Address::generate(&env);
+    client.register_issuer(&issuer, &h(&env, 1));
+    let bid = client.anchor_batch(&issuer, &h(&env, 10), &h(&env, 11), &1u32);
+    client.pause(&true);
+    client.revoke_leaf(&issuer, &bid, &h(&env, 42));
 }
 
 #[test]

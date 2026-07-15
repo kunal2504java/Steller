@@ -104,9 +104,10 @@ pub struct CertClaimed {
 }
 
 /// Emitted when pause state is toggled.
-/// Topics: (`pause_toggled`). Data: paused.
+/// Topics: (`pause_toggled`, paused). Data: none (Void).
 #[contractevent(data_format = "single-value")]
 pub struct PauseToggled {
+    #[topic]
     pub paused: bool,
 }
 
@@ -122,11 +123,11 @@ fn require_not_paused(env: &Env) -> Result<(), Error> {
     Ok(())
 }
 
-fn load_batch_checked(env: &Env, issuer: &Address, batch_id: u64) -> Result<Batch, Error> {
+fn load_batch_checked(env: &Env, issuer: &Address, batch_key: &DataKey) -> Result<Batch, Error> {
     let batch: Batch = env
         .storage()
         .persistent()
-        .get(&DataKey::Batch(batch_id))
+        .get(batch_key)
         .ok_or(Error::BatchNotFound)?;
     if batch.issuer != *issuer {
         return Err(Error::NotBatchIssuer);
@@ -306,12 +307,11 @@ impl ProbatumContract {
     pub fn revoke_batch(env: Env, issuer: Address, batch_id: u64) -> Result<(), Error> {
         require_not_paused(&env)?;
         issuer.require_auth();
-        let mut batch = load_batch_checked(&env, &issuer, batch_id)?;
+        let batch_key = DataKey::Batch(batch_id);
+        let mut batch = load_batch_checked(&env, &issuer, &batch_key)?;
         batch.revoked = true;
-        env.storage()
-            .persistent()
-            .set(&DataKey::Batch(batch_id), &batch);
-        bump_persistent(&env, &DataKey::Batch(batch_id));
+        env.storage().persistent().set(&batch_key, &batch);
+        bump_persistent(&env, &batch_key);
         bump_instance(&env);
         BatchRevoked { batch_id }.publish(&env);
         Ok(())
@@ -325,11 +325,11 @@ impl ProbatumContract {
     ) -> Result<(), Error> {
         require_not_paused(&env)?;
         issuer.require_auth();
-        load_batch_checked(&env, &issuer, batch_id)?;
-        env.storage()
-            .persistent()
-            .set(&DataKey::RevokedLeaf(batch_id, leaf_hash.clone()), &true);
-        bump_persistent(&env, &DataKey::RevokedLeaf(batch_id, leaf_hash.clone()));
+        let batch_key = DataKey::Batch(batch_id);
+        load_batch_checked(&env, &issuer, &batch_key)?;
+        let revoked_key = DataKey::RevokedLeaf(batch_id, leaf_hash.clone());
+        env.storage().persistent().set(&revoked_key, &true);
+        bump_persistent(&env, &revoked_key);
         bump_instance(&env);
         LeafRevoked {
             batch_id,
@@ -363,10 +363,11 @@ impl ProbatumContract {
     ) -> Result<(), Error> {
         require_not_paused(&env)?;
         recipient.require_auth();
+        let batch_key = DataKey::Batch(batch_id);
         let batch: Batch = env
             .storage()
             .persistent()
-            .get(&DataKey::Batch(batch_id))
+            .get(&batch_key)
             .ok_or(Error::BatchNotFound)?;
         if batch.revoked {
             return Err(Error::BatchRevoked);
@@ -383,6 +384,7 @@ impl ProbatumContract {
         }
         env.storage().persistent().set(&claim_key, &recipient);
         bump_persistent(&env, &claim_key);
+        bump_persistent(&env, &batch_key);
         let claims: u64 = env
             .storage()
             .instance()
