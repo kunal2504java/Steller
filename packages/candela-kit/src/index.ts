@@ -4,6 +4,8 @@ export {
   createWallet,
   connectWallet,
   signAndSubmit,
+  type BuiltAssembledTransaction,
+  type SignAndSubmitOptions,
   type CandelaWallet,
 } from "./core/wallet";
 export { CandelaProvider, useCandela } from "./react/context";

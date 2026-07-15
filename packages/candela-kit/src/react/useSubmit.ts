@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useCandela } from "./context";
-import { signAndSubmit } from "../core/wallet";
+import { signAndSubmit, type BuiltAssembledTransaction } from "../core/wallet";
 
 export type SubmitState =
   | { phase: "idle" }
@@ -14,12 +14,13 @@ export function useSubmit() {
   const { config, wallet } = useCandela();
   const [state, setState] = useState<SubmitState>({ phase: "idle" });
 
-  async function submit(assembled: any) {
+  async function submit<T>(assembled: BuiltAssembledTransaction<T>) {
     if (!wallet) throw new Error("no wallet connected");
     setState({ phase: "signing" });
     try {
-      setState({ phase: "submitting" });
-      const res = await signAndSubmit(config, wallet, assembled);
+      const res = await signAndSubmit(config, wallet, assembled, {
+        onSigned: () => setState({ phase: "submitting" }),
+      });
       setState({ phase: "confirmed", hash: res.hash });
       return res;
     } catch (e) {

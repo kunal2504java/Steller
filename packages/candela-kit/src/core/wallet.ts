@@ -2,7 +2,8 @@
 // TransactionBuilder (never /minimal), and always re-simulate after
 // kit.sign before fallback submission.
 import { PasskeyKit, PasskeyServer } from "passkey-kit";
-import { Keypair, TransactionBuilder } from "@stellar/stellar-base";
+import { Keypair, TransactionBuilder, type Transaction } from "@stellar/stellar-base";
+import type { AssembledTransaction } from "@stellar/stellar-sdk/minimal/contract";
 import {
   Server,
   Api,
@@ -11,6 +12,10 @@ import {
 import type { CandelaConfig } from "./config";
 
 export type CandelaWallet = { contractId: string; keyIdBase64: string };
+export type BuiltAssembledTransaction<T = unknown> = AssembledTransaction<T> & {
+  built: Transaction;
+};
+export type SignAndSubmitOptions = { onSigned?: () => void };
 
 // passkey-kit's `PasskeyKit.sign()` unconditionally reads
 // `this.wallet!.options.contractId` (kit.ts ~L452), and `this.wallet` is
@@ -132,11 +137,13 @@ export async function connectWallet(cfg: CandelaConfig): Promise<CandelaWallet> 
  * config can create wallets but cannot submit contract calls. Route
  * through send() once a reachable Launchtube exists to test against.
  */
-export async function signAndSubmit(
+export async function signAndSubmit<T>(
   cfg: CandelaConfig,
   wallet: CandelaWallet,
-  assembled: any,
+  assembled: BuiltAssembledTransaction<T>,
+  options: SignAndSubmitOptions = {},
 ): Promise<{ hash: string; status: string }> {
+  if (!assembled?.built) throw new Error("assembled transaction is missing built transaction");
   const kit = kitFor(cfg);
   if (kit.wallet == null || kit.wallet.options.contractId !== wallet.contractId) {
     // Page-reload session: this (possibly memoized) kit instance never ran
@@ -159,9 +166,16 @@ export async function signAndSubmit(
     // confirms it on-chain via `rpc.getContractData` — no user interaction.
     // The user is still prompted for biometrics later, inside kit.sign() ->
     // signAuthEntry() -> WebAuthn.startAuthentication().
-    await kit.connectWallet({ keyId: wallet.keyIdBase64 });
+    const hydrated = await kit.connectWallet({ keyId: wallet.keyIdBase64 });
+    if (
+      hydrated.contractId !== wallet.contractId ||
+      kit.wallet?.options.contractId !== wallet.contractId
+    ) {
+      throw new Error("wallet identity mismatch after hydration");
+    }
   }
   await kit.sign(assembled, { keyId: wallet.keyIdBase64 });
+  options.onSigned?.();
   const server = new Server(cfg.rpcUrl);
   // enforcing-mode re-simulation so __check_auth is priced (trap #2)
   const sim = await server.simulateTransaction(assembled.built);

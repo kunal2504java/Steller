@@ -27,6 +27,7 @@ vi.mock("@stellar/stellar-base", () => ({
 // WebAuthn, etc.) — that's out of scope; this tests OUR wiring in wallet.ts.
 const connectWalletMock = vi.fn();
 const signMock = vi.fn();
+let hydratedContractId = "CFAKECONTRACTID";
 
 vi.mock("passkey-kit", () => {
   class PasskeyKit {
@@ -37,8 +38,8 @@ vi.mock("passkey-kit", () => {
     }
     async connectWallet(opts?: { keyId?: string }) {
       connectWalletMock(opts);
-      this.wallet = { options: { contractId: "CFAKECONTRACTID" } };
-      return { contractId: "CFAKECONTRACTID", keyIdBase64: opts?.keyId ?? "fake-key-id" };
+      this.wallet = { options: { contractId: hydratedContractId } };
+      return { contractId: hydratedContractId, keyIdBase64: opts?.keyId ?? "fake-key-id" };
     }
     async createWallet() {
       throw new Error("not used by this test");
@@ -98,9 +99,10 @@ describe("signAndSubmit — wallet-state hydration", () => {
     sponsorSecret: TEST_SPONSOR_SECRET,
   };
   const wallet = { contractId: "CFAKECONTRACTID", keyIdBase64: "fake-key-id" };
-  const fakeAssembled = { built: {} };
+  const fakeAssembled = { built: {} } as never;
 
   beforeEach(() => {
+    hydratedContractId = "CFAKECONTRACTID";
     connectWalletMock.mockClear();
     signMock.mockClear();
   });
@@ -135,6 +137,7 @@ describe("signAndSubmit — wallet-state hydration", () => {
       contractId: "CDIFFERENTCONTRACTID",
       keyIdBase64: "different-key-id",
     };
+    hydratedContractId = walletB.contractId;
     const result = await signAndSubmit(cfg, walletB, fakeAssembled);
 
     // Identity mismatch detected, connectWallet called again with new keyId
@@ -144,5 +147,13 @@ describe("signAndSubmit — wallet-state hydration", () => {
     );
     expect(signMock).toHaveBeenCalledTimes(1);
     expect(result).toEqual({ hash: "deadbeefcafe", status: "SUCCESS" });
+  });
+
+  it("rejects a post-hydration contract identity mismatch before signing", async () => {
+    hydratedContractId = "CWRONGCONTRACTID";
+    await expect(
+      signAndSubmit(cfg, { contractId: "CEXPECTED", keyIdBase64: "mismatch-key" }, fakeAssembled),
+    ).rejects.toThrow(/identity mismatch/i);
+    expect(signMock).not.toHaveBeenCalled();
   });
 });
