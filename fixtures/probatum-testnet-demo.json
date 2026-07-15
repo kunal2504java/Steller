@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "batchId": 2,
+  "count": 4,
+  "root": "2bfeccbaa8b27e73aba6a2f228b34717dc6e48ef29c9798ce51685c89f59b6f0",
+  "certificates": [
+    {
+      "routeId": "eyJ2IjoxLCJiYXRjaElkIjoyLCJwYXlsb2FkIjp7InYiOjEsImNlcnRpZmljYXRlSWQiOiJkZW1vLTAxIiwicmVjaXBpZW50IjoiQnVpbGQgU3RhdGlvbiBEZW1vIFJlY2lwaWVudCIsInRpdGxlIjoiUHJvb2Ygb2YgQ29tcGxldGlvbiIsImV2ZW50IjoiUHJvYmF0dW0gVGVzdG5ldCBEZW1vIiwiaXNzdWVkT24iOiIyMDI2LTA3LTE2IiwiaXNzdWVyTGFiZWwiOiJQcm9iYXR1bSBUZXN0bmV0IElzc3VlciIsInNhbHQiOiIwMDExMjIzMzQ0NTU2Njc3ODg5OWFhYmJjY2RkZWVmZiJ9LCJwcm9vZiI6WyIyMGE5YWJmNDcyYTQ2MjE0ZDBkYzBkZWY0MGM3ZjU3MjU1OWUzZjRlMzUwYjQ0MDdkNzBiMWNjMjA2ZTczMGZhIiwiMTc1ODczOTQzMjQyNDI1OWI5NWYwYzNmOTVkMzgxMTA2MjU4MGMzOGFhY2JkYzY3OTEzMTVlNjVkMDk2YzcxYyJdfQ",
+      "leaf": "8821156decaa3f2c0d3a5bbbfb356f7e7c70a69afd073d0430f37c0d714c6fed",
+      "v": 1,
+      "batchId": 2,
+      "payload": {
+        "v": 1,
+        "certificateId": "demo-01",
+        "recipient": "Build Station Demo Recipient",
+        "title": "Proof of Completion",
+        "event": "Probatum Testnet Demo",
+        "issuedOn": "2026-07-16",
+        "issuerLabel": "Probatum Testnet Issuer",
+        "salt": "00112233445566778899aabbccddeeff"
+      },
+      "proof": [
+        "20a9abf472a46214d0dc0def40c7f572559e3f4e350b4407d70b1cc206e730fa",
+        "1758739432424259b95f0c3f95d3811062580c38aacbdc6791315e65d096c71c"
+      ]
+    },
+    {
+      "routeId": "eyJ2IjoxLCJiYXRjaElkIjoyLCJwYXlsb2FkIjp7InYiOjEsImNlcnRpZmljYXRlSWQiOiJkZW1vLTAyIiwicmVjaXBpZW50IjoiQ2FuZGVsYSBQYXNza2V5IERlbW8iLCJ0aXRsZSI6IlBhc3NrZXkgQ2xhaW0gUHJvb2YiLCJldmVudCI6IlByb2JhdHVtIFRlc3RuZXQgRGVtbyIsImlzc3VlZE9uIjoiMjAyNi0wNy0xNiIsImlzc3VlckxhYmVsIjoiUHJvYmF0dW0gVGVzdG5ldCBJc3N1ZXIiLCJzYWx0IjoiMTAyMTMyNDM1NDY1NzY4Nzk4YTliYWNiZGNlZGZlMGYifSwicHJvb2YiOlsiODgyMTE1NmRlY2FhM2YyYzBkM2E1YmJiZmIzNTZmN2U3YzcwYTY5YWZkMDczZDA0MzBmMzdjMGQ3MTRjNmZlZCIsIjE3NTg3Mzk0MzI0MjQyNTliOTVmMGMzZjk1ZDM4MTEwNjI1ODBjMzhhYWNiZGM2NzkxMzE1ZTY1ZDA5NmM3MWMiXX0",
+      "leaf": "20a9abf472a46214d0dc0def40c7f572559e3f4e350b4407d70b1cc206e730fa",
+      "v": 1,
+      "batchId": 2,
+      "payload": {
+        "v": 1,
+        "certificateId": "demo-02",
+        "recipient": "Candela Passkey Demo",
+        "title": "Passkey Claim Proof",
+        "event": "Probatum Testnet Demo",
+        "issuedOn": "2026-07-16",
+        "issuerLabel": "Probatum Testnet Issuer",
+        "salt": "102132435465768798a9bacbdcedfe0f"
+      },
+      "proof": [
+        "8821156decaa3f2c0d3a5bbbfb356f7e7c70a69afd073d0430f37c0d714c6fed",
+        "1758739432424259b95f0c3f95d3811062580c38aacbdc6791315e65d096c71c"
+      ]
+    },
+    {
+      "routeId": "eyJ2IjoxLCJiYXRjaElkIjoyLCJwYXlsb2FkIjp7InYiOjEsImNlcnRpZmljYXRlSWQiOiJkZW1vLTAzIiwicmVjaXBpZW50IjoiU3RlbGxhciBUZXN0bmV0IFBhcnRpY2lwYW50IiwidGl0bGUiOiJWZXJpZmlhYmxlIENyZWRlbnRpYWwgRGVtbyIsImV2ZW50IjoiUHJvYmF0dW0gVGVzdG5ldCBEZW1vIiwiaXNzdWVkT24iOiIyMDI2LTA3LTE2IiwiaXNzdWVyTGFiZWwiOiJQcm9iYXR1bSBUZXN0bmV0IElzc3VlciIsInNhbHQiOiIyMDMxNDI1MzY0NzU4Njk3YThiOWNhZGJlY2ZkMGUxZiJ9LCJwcm9vZiI6WyIwNzM4MjllYzE5Y2E2MmJjYjkyZDY1NWRiMTJmNTVjMjZlMWNlZWNlNjQ1NTIwMmIzZTZjMmM5Yjg1YWQ3OGY4IiwiNjVkMzZkMmQyNzBlNmI3MDkxNTk2OTUwZGQ4YTM1NjUyZDE4NGMzZDAwZjRjZGE2YjZiYzU2Njc5NDg4NWNmNyJdfQ",
+      "leaf": "d40469982dca2503fea6f3ba0ac4196f468aa98f7664352d55c72b70d1b685ef",
+      "v": 1,
+      "batchId": 2,
+      "payload": {
+        "v": 1,
+        "certificateId": "demo-03",
+        "recipient": "Stellar Testnet Participant",
+        "title": "Verifiable Credential Demo",
+        "event": "Probatum Testnet Demo",
+        "issuedOn": "2026-07-16",
+        "issuerLabel": "Probatum Testnet Issuer",
+        "salt": "2031425364758697a8b9cadbecfd0e1f"
+      },
+      "proof": [
+        "073829ec19ca62bcb92d655db12f55c26e1ceece6455202b3e6c2c9b85ad78f8",
+        "65d36d2d270e6b7091596950dd8a35652d184c3d00f4cda6b6bc566794885cf7"
+      ]
+    },
+    {
+      "routeId": "eyJ2IjoxLCJiYXRjaElkIjoyLCJwYXlsb2FkIjp7InYiOjEsImNlcnRpZmljYXRlSWQiOiJkZW1vLTA0IiwicmVjaXBpZW50IjoiUHJvYmF0dW0gVmVyaWZpY2F0aW9uIERlbW8iLCJ0aXRsZSI6Ik9uLWNoYWluIFByb29mIERlbW8iLCJldmVudCI6IlByb2JhdHVtIFRlc3RuZXQgRGVtbyIsImlzc3VlZE9uIjoiMjAyNi0wNy0xNiIsImlzc3VlckxhYmVsIjoiUHJvYmF0dW0gVGVzdG5ldCBJc3N1ZXIiLCJzYWx0IjoiMzA0MTUyNjM3NDg1OTZhN2I4YzlkYWViZmMwZDFlMmYifSwicHJvb2YiOlsiZDQwNDY5OTgyZGNhMjUwM2ZlYTZmM2JhMGFjNDE5NmY0NjhhYTk4Zjc2NjQzNTJkNTVjNzJiNzBkMWI2ODVlZiIsIjY1ZDM2ZDJkMjcwZTZiNzA5MTU5Njk1MGRkOGEzNTY1MmQxODRjM2QwMGY0Y2RhNmI2YmM1NjY3OTQ4ODVjZjciXX0",
+      "leaf": "073829ec19ca62bcb92d655db12f55c26e1ceece6455202b3e6c2c9b85ad78f8",
+      "v": 1,
+      "batchId": 2,
+      "payload": {
+        "v": 1,
+        "certificateId": "demo-04",
+        "recipient": "Probatum Verification Demo",
+        "title": "On-chain Proof Demo",
+        "event": "Probatum Testnet Demo",
+        "issuedOn": "2026-07-16",
+        "issuerLabel": "Probatum Testnet Issuer",
+        "salt": "30415263748596a7b8c9daebfc0d1e2f"
+      },
+      "proof": [
+        "d40469982dca2503fea6f3ba0ac4196f468aa98f7664352d55c72b70d1b685ef",
+        "65d36d2d270e6b7091596950dd8a35652d184c3d00f4cda6b6bc566794885cf7"
+      ]
+    }
+  ]
+}
