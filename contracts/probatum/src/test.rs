@@ -1,6 +1,6 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::testutils::{Address as _, Events, Ledger};
+use soroban_sdk::testutils::{storage::Instance as _, Address as _, Events, Ledger};
 use soroban_sdk::Env;
 use soroban_sdk::{Address, Bytes, BytesN};
 
@@ -16,16 +16,32 @@ fn setup() -> (Env, ProbatumContractClient<'static>, Address) {
 #[test]
 fn test_version() {
     let (_env, client, _admin) = setup();
-    assert_eq!(client.version(), 2);
+    assert_eq!(client.version(), 3);
 }
 
 #[test]
 fn test_constructor_initializes_state() {
     let (_env, client, _admin) = setup();
-    assert_eq!(client.version(), 2);
+    assert_eq!(client.version(), 3);
     assert_eq!(client.is_paused(), false);
     assert_eq!(client.batch_count(), 0);
     assert_eq!(client.claim_count(), 0);
+}
+
+#[test]
+fn test_write_refreshes_instance_ttl() {
+    let (env, client, _admin) = setup();
+    let ttl = env.as_contract(&client.address, || env.storage().instance().get_ttl());
+    if ttl >= TTL_THRESHOLD {
+        env.ledger()
+            .set_sequence_number(env.ledger().sequence() + ttl - TTL_THRESHOLD + 1);
+    }
+
+    let before = env.as_contract(&client.address, || env.storage().instance().get_ttl());
+    assert!(before < TTL_THRESHOLD);
+    client.pause(&true);
+    let after = env.as_contract(&client.address, || env.storage().instance().get_ttl());
+    assert!(after >= TTL_EXTEND_TO - 1, "instance TTL was only {after}");
 }
 
 #[test]

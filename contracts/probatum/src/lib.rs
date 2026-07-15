@@ -160,13 +160,19 @@ fn bump_persistent(env: &Env, key: &DataKey) {
         .extend_ttl(key, TTL_THRESHOLD, TTL_EXTEND_TO);
 }
 
+fn bump_instance(env: &Env) {
+    env.storage()
+        .instance()
+        .extend_ttl(TTL_THRESHOLD, TTL_EXTEND_TO);
+}
+
 #[contract]
 pub struct ProbatumContract;
 
 #[contractimpl]
 impl ProbatumContract {
     pub fn version(_env: Env) -> u32 {
-        2
+        3
     }
 
     /// Runs atomically at deploy time — no init front-running window.
@@ -174,6 +180,7 @@ impl ProbatumContract {
         env.storage().instance().set(&DataKey::Admin, &admin);
         env.storage().instance().set(&DataKey::Paused, &false);
         env.storage().instance().set(&DataKey::BatchSeq, &0u64);
+        bump_instance(&env);
     }
 
     pub fn pause(env: Env, paused: bool) -> Result<(), Error> {
@@ -184,6 +191,7 @@ impl ProbatumContract {
             .ok_or(Error::NotInitialized)?;
         admin.require_auth();
         env.storage().instance().set(&DataKey::Paused, &paused);
+        bump_instance(&env);
         PauseToggled { paused }.publish(&env);
         Ok(())
     }
@@ -208,6 +216,7 @@ impl ProbatumContract {
         }
         env.storage().persistent().set(&key, &profile_hash);
         bump_persistent(&env, &key);
+        bump_instance(&env);
         IssuerRegistered {
             issuer,
             profile_hash,
@@ -225,6 +234,7 @@ impl ProbatumContract {
         }
         env.storage().persistent().set(&key, &profile_hash);
         bump_persistent(&env, &key);
+        bump_instance(&env);
         IssuerRegistered {
             issuer,
             profile_hash,
@@ -272,6 +282,7 @@ impl ProbatumContract {
             .set(&DataKey::Batch(batch_id), &batch);
         bump_persistent(&env, &DataKey::Batch(batch_id));
         env.storage().instance().set(&DataKey::BatchSeq, &batch_id);
+        bump_instance(&env);
         BatchAnchored {
             issuer,
             batch_id,
@@ -301,6 +312,7 @@ impl ProbatumContract {
             .persistent()
             .set(&DataKey::Batch(batch_id), &batch);
         bump_persistent(&env, &DataKey::Batch(batch_id));
+        bump_instance(&env);
         BatchRevoked { batch_id }.publish(&env);
         Ok(())
     }
@@ -318,6 +330,7 @@ impl ProbatumContract {
             .persistent()
             .set(&DataKey::RevokedLeaf(batch_id, leaf_hash.clone()), &true);
         bump_persistent(&env, &DataKey::RevokedLeaf(batch_id, leaf_hash.clone()));
+        bump_instance(&env);
         LeafRevoked {
             batch_id,
             leaf_hash,
@@ -378,6 +391,7 @@ impl ProbatumContract {
         env.storage()
             .instance()
             .set(&DataKey::ClaimCount, &(claims + 1));
+        bump_instance(&env);
         CertClaimed {
             batch_id,
             recipient,
@@ -408,6 +422,7 @@ impl ProbatumContract {
             .ok_or(Error::BatchNotFound)?;
         bump_persistent(&env, &DataKey::Batch(batch_id));
         bump_persistent(&env, &DataKey::Issuer(batch.issuer));
+        bump_instance(&env);
         Ok(())
     }
 }
