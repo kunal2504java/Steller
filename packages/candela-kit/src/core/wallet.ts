@@ -82,6 +82,27 @@ async function feeBumpAndSubmit(
   return { hash: sent.hash, status: res.status };
 }
 
+async function postTransaction(
+  url: string,
+  transaction: { toXDR(): string },
+): Promise<{ hash: string; status: string }> {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ transaction: transaction.toXDR() }),
+  });
+  const result = await response.json().catch(() => null);
+  if (
+    !response.ok ||
+    !result ||
+    typeof result.hash !== "string" ||
+    result.status !== "SUCCESS"
+  ) {
+    throw new Error(result?.error ?? "sponsored submission failed");
+  }
+  return { hash: result.hash, status: result.status };
+}
+
 async function send(cfg: CandelaConfig, signedTx: any) {
   if (cfg.launchtube) {
     const server = new PasskeyServer({
@@ -108,6 +129,7 @@ async function send(cfg: CandelaConfig, signedTx: any) {
     }
     return res;
   }
+  if (cfg.submissionUrl) return postTransaction(cfg.submissionUrl, signedTx);
   return feeBumpAndSubmit(cfg, signedTx);
 }
 
@@ -183,6 +205,14 @@ export async function signAndSubmit<T>(
     throw new Error("re-simulation failed: " + JSON.stringify(sim));
   }
   const prepared = assembleTransaction(assembled.built, sim).build();
+  if (cfg.submissionUrl) return postTransaction(cfg.submissionUrl, prepared);
+  if (cfg.launchtube) {
+    const result = await send(cfg, prepared);
+    if (result && typeof result.hash === "string") {
+      return { hash: result.hash, status: result.status ?? "SUCCESS" };
+    }
+    throw new Error("launchtube submission returned no transaction hash");
+  }
   if (!cfg.sponsorSecret) throw new Error("sponsorSecret required for fallback path");
   const sponsor = Keypair.fromSecret(cfg.sponsorSecret);
   prepared.sign(sponsor as any);

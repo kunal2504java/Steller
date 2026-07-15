@@ -3,6 +3,8 @@ export type CandelaConfig = {
   networkPassphrase: string;
   walletWasmHash: string;
   launchtube?: { url: string; jwt: string };
+  /** Same-origin endpoint that signs/submits without exposing its sponsor key. */
+  submissionUrl?: string;
   /** Fallback sponsor (testnet/dev). NEVER commit a real secret. */
   sponsorSecret?: string;
 };

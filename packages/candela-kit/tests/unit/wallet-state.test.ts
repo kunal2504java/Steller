@@ -85,7 +85,7 @@ vi.mock("@stellar/stellar-sdk/minimal/rpc", () => {
     isSimulationSuccess: (_sim: any) => true,
   };
   function assembleTransaction(_built: any, _sim: any) {
-    return { build: () => ({ sign: (_kp: any) => {} }) };
+    return { build: () => ({ sign: (_kp: any) => {}, toXDR: () => "prepared-xdr" }) };
   }
   return { Server, Api, assembleTransaction };
 });
@@ -155,5 +155,21 @@ describe("signAndSubmit — wallet-state hydration", () => {
       signAndSubmit(cfg, { contractId: "CEXPECTED", keyIdBase64: "mismatch-key" }, fakeAssembled),
     ).rejects.toThrow(/identity mismatch/i);
     expect(signMock).not.toHaveBeenCalled();
+  });
+
+  it("posts prepared XDR to a same-origin submission transport without a browser secret", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ hash: "remote-hash", status: "SUCCESS" }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const remoteCfg = { ...resolveConfig("testnet"), submissionUrl: "/api/candela/submit" };
+    const result = await signAndSubmit(remoteCfg, wallet, fakeAssembled);
+    expect(result).toEqual({ hash: "remote-hash", status: "SUCCESS" });
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/candela/submit",
+      expect.objectContaining({ body: JSON.stringify({ transaction: "prepared-xdr" }) }),
+    );
+    vi.unstubAllGlobals();
   });
 });
