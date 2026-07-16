@@ -7,13 +7,13 @@ import deployment from "../../../../deployments/testnet.json";
  * an RPC hiccup can never break the page.
  */
 
-const CONTRACT_ID = deployment.contractId;
-const NETWORK = deployment.network;
-const GENESIS_TX = deployment.genesisTx;
-const RPC_URL = "https://soroban-testnet.stellar.org";
-const NETWORK_PASSPHRASE = "Test SDF Network ; September 2015";
+export const CONTRACT_ID = deployment.contractId;
+export const NETWORK = deployment.network;
+export const GENESIS_TX = deployment.genesisTx;
+export const RPC_URL = "https://soroban-testnet.stellar.org";
+export const NETWORK_PASSPHRASE = "Test SDF Network ; September 2015";
 // Any funded account works as a simulation source for read-only calls.
-const SIM_SOURCE = "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN7";
+export const SIM_SOURCE = "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN7";
 
 export type ChainStats = {
   batches: string;
