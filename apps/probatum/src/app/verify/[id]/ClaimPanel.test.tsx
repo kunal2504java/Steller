@@ -108,6 +108,8 @@ describe("ClaimPanel", () => {
     const view = await render();
     const link = view.host.querySelector<HTMLAnchorElement>('a[href*="/tx/abc123"]');
     expect(view.host.textContent).toContain("Claim confirmed");
+    expect(view.host.querySelector("[data-wallet-id='CWALLET']")).not.toBeNull();
+    expect(view.host.querySelector("[data-claim-phase='confirmed']")).not.toBeNull();
     expect(link?.textContent).toContain("View confirmed transaction");
     await view.unmount();
   });

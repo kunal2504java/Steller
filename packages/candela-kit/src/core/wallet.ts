@@ -196,15 +196,20 @@ export async function signAndSubmit<T>(
       throw new Error("wallet identity mismatch after hydration");
     }
   }
-  await kit.sign(assembled, { keyId: wallet.keyIdBase64 });
+  // PasskeyKit may rebuild an AssembledTransaction when the caller's
+  // generated binding uses a different SDK instance (common in consuming
+  // Next apps). In that case it signs and returns the rebuilt object instead
+  // of mutating `assembled`, so the returned transaction is authoritative.
+  const signed = await kit.sign(assembled, { keyId: wallet.keyIdBase64 });
+  if (!signed?.built) throw new Error("signed transaction is missing built transaction");
   options.onSigned?.();
   const server = new Server(cfg.rpcUrl);
   // enforcing-mode re-simulation so __check_auth is priced (trap #2)
-  const sim = await server.simulateTransaction(assembled.built);
+  const sim = await server.simulateTransaction(signed.built);
   if (!Api.isSimulationSuccess(sim)) {
     throw new Error("re-simulation failed: " + JSON.stringify(sim));
   }
-  const prepared = assembleTransaction(assembled.built, sim).build();
+  const prepared = assembleTransaction(signed.built, sim).build();
   if (cfg.submissionUrl) return postTransaction(cfg.submissionUrl, prepared);
   if (cfg.launchtube) {
     const result = await send(cfg, prepared);

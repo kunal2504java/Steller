@@ -10,7 +10,7 @@ import {
   type BuiltAssembledTransaction,
 } from "candela-kit";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import deployment from "../../../../../../deployments/testnet.json";
 import type { CertificateEnvelope } from "../../../lib/certificate";
 import { Client } from "../../../lib/probatum-bindings";
@@ -42,6 +42,12 @@ export default function ClaimPanel({
   const [assemblyError, setAssemblyError] = useState<string | null>(null);
   const [assembling, setAssembling] = useState(false);
 
+  useEffect(() => {
+    if (state.phase !== "confirmed") return;
+    const refresh = window.setTimeout(() => router.refresh(), 1_500);
+    return () => window.clearTimeout(refresh);
+  }, [router, state.phase]);
+
   async function claimCertificate() {
     if (!wallet || assembling || state.phase === "signing" || state.phase === "submitting") return;
     setAssemblyError(null);
@@ -65,7 +71,6 @@ export default function ClaimPanel({
       // are nominally incompatible. Validate the shared runtime boundary
       // before crossing it: Candela only requires the built Transaction.
       await submit(claimTx as unknown as BuiltAssembledTransaction);
-      router.refresh();
     } catch (error) {
       setAssemblyError(error instanceof Error ? error.message : String(error));
     } finally {
@@ -127,7 +132,12 @@ export default function ClaimPanel({
   const failure = assemblyError ?? (state.phase === "failed" ? state.error : null);
 
   return (
-    <section className="claim-panel" aria-label="Certificate claim">
+    <section
+      className="claim-panel"
+      aria-label="Certificate claim"
+      data-wallet-id={wallet.contractId}
+      data-claim-phase={assembling ? "assembling" : state.phase}
+    >
       <div className="claim-panel-copy">
         <p className="claim-kicker">Candela wallet connected</p>
         <h3>{failure ? "Claim failed" : state.phase === "confirmed" ? "Claim confirmed" : "Ready to claim"}</h3>

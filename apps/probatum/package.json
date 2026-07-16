@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@gsap/react": "2.1.2",
@@ -23,6 +24,7 @@
     "react-dom": "19.2.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61",
     "@tailwindcss/postcss": "4.1.16",
     "@types/node": "^22",
     "@types/react": "^19",
