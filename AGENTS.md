@@ -1,7 +1,7 @@
 # AGENTS.md — Candela + Probatum
 
 Handoff doc for any coding agent working in this repo. Read this fully before touching anything.
-Written 2026-07-12, at the point where Plan 3 merged to `main` (`984500b`).
+Originally written 2026-07-12 when Plan 3 merged. Last updated 2026-07-17 after implementation commit `16e4378`.
 
 ---
 
@@ -26,12 +26,15 @@ The user's hard requirements (from day one, still binding): easily adoptable · 
 | `candela-kit` | Built + **proven end-to-end on live testnet** through its public React API. Publish-ready, **NOT published (gated)** |
 | Unified web server | `apps/probatum`: Candela at `/`, Probatum at `/probatum`, proofs at `/verify/[id]`, sponsor API on the same origin |
 | `apps/candela` | Approved Candela landing/component source; legacy standalone preview remains buildable but is not the product server |
+| Candela hero terminal | Polished macOS-style graphite window, stable typed frame, real traffic-light controls, 112px desktop / 96px mobile hero spacing |
 | Probatum verify/claim/share | Complete and live-proven; issuer CSV/anchor UI remains out of scope |
 | Contract rev (v3) | Complete — one constructor redeploy, KAT genesis preserved, demo batch seeded |
 | Mainnet | **Not deployed** — testnet only so far |
 | Public deploy (Vercel/domain) | **Not done** — canonical single origin is `candela.dev` |
 
 **Live proof that the whole stack works** (from Plan 2, on testnet): a Playwright virtual authenticator created a passkey → smart wallet `CD67ZP6EXIQTFILVEMB6JIFJ47TVIGMKUA7JDY4A2YBMRABZNDYWWXIG` → landed a sponsored `register_issuer` in tx `2da1289548f8227342ce70fa46225572dfd50d6adbb3af5b650dfee385caf484`. That is not a mock. The kit really does this.
+
+**Latest full viral-loop proof** (Plan 4): `/verify/demo-02` resolved VALID, created/restored a passkey wallet, claimed on the v3 contract, survived reload hydration, and exposed canonical LinkedIn + QR sharing. The authoritative claim wallet and transaction are recorded in `deployments/testnet.json` and `.superpowers/sdd/progress.md`; do not duplicate them into UI code.
 
 ---
 
@@ -48,7 +51,7 @@ deployments/testnet.json        SINGLE SOURCE OF TRUTH for on-chain values — n
 scripts/deploy-testnet.ps1      constructor deploy + genesis seeding (PowerShell)
 docs/DEV.md                     toolchain, Windows PATH quirk, spike findings, dev-vs-build clash
 docs/superpowers/specs/         approved design specs (read these before planning)
-docs/superpowers/plans/         executed implementation plans (Plans 1–3)
+docs/superpowers/plans/         executed implementation plans (Plans 1–4 + unified-server follow-up)
 .superpowers/sdd/progress.md    THE DURABLE LEDGER — gitignored, local only. Richest knowledge source.
 ```
 
@@ -115,6 +118,7 @@ These were all learned the hard way. They are not style preferences.
 9. **Windows orphan processes.** Killing `pnpm dev` can orphan the `node` child still holding the port. Check `Get-NetTCPConnection -LocalPort 3000` (or 3001) and kill the owning PID.
 10. **PowerShell 5.1 gotchas.** Native-exe failures don't throw → guard with `$LASTEXITCODE`. `2>&1` under `$ErrorActionPreference="Stop"` wraps stderr as terminating errors even on success (git/pnpm push output looks like failure — it isn't). `Out-File -Encoding utf8` writes a BOM → use `[System.IO.File]::WriteAllText` with `UTF8Encoding($false)`.
 11. **stellar CLI not on PATH** in shells started before its install → `$env:PATH = [System.Environment]::GetEnvironmentVariable('PATH','Machine') + ';' + [System.Environment]::GetEnvironmentVariable('PATH','User')`.
+12. **Unified Tailwind source boundary.** `apps/probatum` imports Candela components from outside its own app tree. A new utility class that exists only in `apps/candela` may be absent from the unified production CSS even though the standalone Candela build looks correct. Layout-critical reused styles must be represented in `apps/probatum/src/app/globals.css` (and mirrored in the standalone Candela CSS), or the Tailwind source boundary must be deliberately configured. Verify computed styles against the `apps/probatum` production build, not only source markup.
 
 ---
 
@@ -135,6 +139,7 @@ These were all learned the hard way. They are not style preferences.
 - The look is a **monochrome "Cryptgen-clone"** system: true black (`--color-vault: #000000`), silver/graphite metallic pills, glass cards, gradient-masked `.fade-title` headlines, an arc-glow planet finale. Colour survives **only** in the small red wax logo mark and functional verification-state badges.
 - **Fonts: Inter + Fragment Mono ONLY.** The user instantly clocks "AI slop" fonts (Fraunces, Space Grotesk et al.) — do not introduce any new typeface. Inter here is deliberate: it's the cloned template's design font.
 - The deployed server is `apps/probatum`; it reuses the approved Candela component tree from `apps/candela` while `apps/probatum/src/app/globals.css` supplies the unified tokens and terminal styles. Keep the legacy standalone app buildable, but do not split the products back onto separate servers/domains.
+- The Candela terminal uses explicit `.mac-terminal*`, `.term*`, `.candela-hero`, and `.candela-terminal-section` rules in both apps' global CSS. Keep the two blocks visually equivalent. Its body must remain height-stable while typing, and the hero-to-terminal breathing room must survive the unified production build.
 - Every animation degrades under `prefers-reduced-motion: reduce` to a static, complete final frame.
 - Gradient banding: never animate grain; SVG noise data-URIs need explicit `width`/`height` or they stretch instead of tile (reads as "moving pixels" — the user will notice).
 
@@ -193,7 +198,7 @@ live-prove `connectWallet` + reload hydration · type the `assembled` boundary (
 - `CopyButton.tsx` — `setTimeout(1600)` has no `clearTimeout` cleanup (inert today: only ever mounted in always-present nav/hero/finale). Clipboard failure is silently swallowed with no fallback.
 - `Terminal.tsx` — reduced-motion is read in a post-mount effect, so first paint briefly (~80ms, measured — imperceptible) shows an empty terminal. No `matchMedia` change-listener for a live OS toggle.
 - `HowItWorks.tsx` — one mono code line uses `text-[11px] text-parchment` vs the sibling bento idiom `text-[10px] text-ash`.
-- `UseCase` renders the live "sponsored actions" number, currently **`0`** (`claim_count` is 0 — nobody has claimed yet). Honest, but revisit the metric once the claim flow lands.
+- `UseCase` renders the live "sponsored actions" number. `claim_count` reached **2** during the Plan 4 live proof; keep the display deployment-backed and never replace it with fabricated activity.
 - Dead CSS ships (`.flame-text`, `.aurora*`, `.orbit*`) — accepted cost of the deliberate verbatim token copy. Unused `@gsap/react` dep in `apps/candela`. `WhyItMatters` uses `py-24` vs siblings' `py-28 md:py-36`. In-page anchors aren't Lenis-smooth. `toLocaleString("en-IN")` grouping on a globally-targeted page.
 
 ---
@@ -211,3 +216,16 @@ live-prove `connectWallet` + reload hydration · type the `assembled` boundary (
 - Solo builder in India. **Does not write code** — "you will be writing everything bro, not me so decide." Make technical calls autonomously and bias toward polished/cool; bring them **direction** decisions only.
 - Their client can **miss long content that appears before a tool call** — put deliverables (summaries, questions, options) in the **final message** of a turn.
 - They value the "10M ARR product" bar: no AI-slop fonts, no lazy gradients, real proof over mock demos.
+
+---
+
+## 12. Latest handoff snapshot — 2026-07-17
+
+- Latest implementation commit: `16e4378 feat(candela-web): polish hero terminal as macOS window`.
+- Unified architecture commit: `9c4f9cd`; implementation plan commit: `c6b2663`.
+- The one product server is `apps/probatum`. At handoff it was production-built and running locally at `http://localhost:3000`; port 3001 was off.
+- Latest terminal verification: Candela 7/7 tests; Probatum 43/43 tests; Probatum TypeScript check; both Next production builds; 1440px and 375px browser renders; reduced-motion full frame; zero horizontal overflow and zero console errors.
+- The terminal polish is present in both `apps/candela/src/app/globals.css` and `apps/probatum/src/app/globals.css` because the latter owns deployed global CSS.
+- Working tree at handoff contained only an untracked `.claude/` directory belonging to the user. Do not delete, rewrite, or stage it unless the user explicitly asks.
+- No npm publish, mainnet deploy, public Vercel deploy, or issuer CSV/anchor pipeline has happened.
+- Next strategic choices are: deploy the unified server to `candela.dev`; complete pre-mainnet security/design decisions and deploy to mainnet; or prepare the gated `candela-kit` publish checklist. Ask the user which direction to take before making external deployments or publishing.
