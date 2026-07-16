@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import deployment from "../../../../../../deployments/testnet.json";
 import VerificationShell from "@/components/VerificationShell";
 import { bytesToHex } from "@/lib/merkle";
@@ -91,7 +92,13 @@ function EvidenceRow({ label, value, href }: { label: string; value: string; hre
   );
 }
 
-export default function VerificationView({ result }: { result: VerificationResult }) {
+export default function VerificationView({
+  result,
+  claimSlot,
+}: {
+  result: VerificationResult;
+  claimSlot?: ReactNode;
+}) {
   const state = result.kind === "unavailable" ? "UNAVAILABLE" : result.state;
   const copy = COPY[state];
   const envelope = result.envelope;
@@ -219,9 +226,11 @@ export default function VerificationView({ result }: { result: VerificationResul
             </p>
 
             <div className="verification-actions proof-step">
-              <button type="button" className="pill-metal" disabled>
-                Claim with passkey · next
-              </button>
+              {claimSlot ?? (
+                <button type="button" className="pill-metal" disabled>
+                  Claim unavailable for this proof
+                </button>
+              )}
               <Link href="/" className="pill-ghost">Back to Probatum</Link>
             </div>
           </aside>

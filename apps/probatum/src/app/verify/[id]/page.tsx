@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { unstable_noStore as noStore } from "next/cache";
 import { getVerification } from "@/lib/verification";
+import ClaimIsland from "./ClaimIsland";
 import VerificationView from "./VerificationView";
 
 export const revalidate = 0;
@@ -31,5 +32,15 @@ export default async function VerifyPage({
   noStore();
   const { id } = await params;
   const result = await getVerification(id);
-  return <VerificationView result={result} />;
+  const claimSlot = result.kind === "resolved" && result.state === "VALID" && result.envelope && result.leafHex
+    ? (
+      <ClaimIsland
+        envelope={result.envelope}
+        leafHex={result.leafHex}
+        claimedBy={result.claimedBy}
+      />
+    )
+    : undefined;
+
+  return <VerificationView result={result} claimSlot={claimSlot} />;
 }
