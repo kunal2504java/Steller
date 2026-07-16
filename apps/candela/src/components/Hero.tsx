@@ -2,7 +2,7 @@ import CopyButton from "./CopyButton";
 
 export default function Hero() {
   return (
-    <header className="relative overflow-hidden pb-16 pt-40 md:pt-48">
+    <header className="candela-hero relative overflow-hidden pt-40 md:pt-48">
       <div className="grid-bg absolute inset-0" aria-hidden />
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-[60vh]"

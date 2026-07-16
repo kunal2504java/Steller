@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { SCRIPT_LINES, initialFrame, type Frame } from "./terminal-script";
 
 function lineClass(line: string): string {
-  if (line.startsWith("$")) return "text-vellum";
+  if (line.startsWith("$")) return "term-line--command";
   if (line.startsWith("✓") || line.trimEnd().endsWith("✓"))
-    return "text-candle";
-  if (line.startsWith("//")) return "text-ash";
-  if (line.startsWith("→")) return "text-parchment";
-  return "text-parchment";
+    return "term-line--success";
+  if (line.startsWith("//")) return "term-line--comment";
+  if (line.startsWith("→")) return "term-line--output";
+  return "term-line--code";
 }
 
 export default function Terminal() {
@@ -36,24 +36,41 @@ export default function Terminal() {
   }, []);
 
   return (
-    <section className="relative mx-auto max-w-3xl px-6 pb-8">
-      <div data-reveal className="glass-card overflow-hidden">
-        <div className="flex items-center gap-2 border-b border-vellum/8 px-4 py-3">
-          <span className="term-dot bg-sealwax-hot/70" />
-          <span className="term-dot bg-candle/40" />
-          <span className="term-dot bg-vellum/20" />
-          <span className="ml-3 font-mono text-[11px] text-ash">
-            candela — passkey onboarding
-          </span>
+    <section className="candela-terminal-section relative mx-auto max-w-4xl px-5 pb-12 md:px-6 md:pb-16">
+      <div data-reveal className="mac-terminal overflow-hidden">
+        <div className="mac-terminal-titlebar">
+          <div className="mac-terminal-controls" aria-hidden="true">
+            <span className="mac-terminal-dot mac-terminal-dot--close" />
+            <span className="mac-terminal-dot mac-terminal-dot--minimize" />
+            <span className="mac-terminal-dot mac-terminal-dot--zoom" />
+          </div>
+          <div className="mac-terminal-title">
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <rect x="1" y="2" width="14" height="12" rx="2" />
+              <path d="m4 6 2 2-2 2M8 10h4" />
+            </svg>
+            <span>candela — zsh — 80×24</span>
+          </div>
+          <span className="mac-terminal-titlebar-spacer" aria-hidden="true" />
         </div>
-        <pre className="term min-h-[22rem] overflow-x-auto px-5 py-4">
+
+        <div className="mac-terminal-tabbar" aria-hidden="true">
+          <div className="mac-terminal-tab">
+            <span className="mac-terminal-tab-icon">›_</span>
+            <span>candela-kit</span>
+            <span className="mac-terminal-tab-close">×</span>
+          </div>
+          <span className="mac-terminal-new-tab">+</span>
+        </div>
+
+        <pre className="term min-h-[25rem] overflow-x-auto px-5 py-6 md:px-7 md:py-7">
           {frame.visibleLines.map((line, idx) => {
             const isLast = idx === frame.visibleLines.length - 1;
             return (
-              <div key={idx} className={lineClass(line)}>
-                {line || " "}
+              <span key={idx} className={`term-line ${lineClass(line)}`}>
+                {line || "\u00a0"}
                 {!frame.done && isLast && <span className="term-caret" />}
-              </div>
+              </span>
             );
           })}
         </pre>
