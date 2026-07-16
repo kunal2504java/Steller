@@ -6,6 +6,9 @@
     "deployedAt":  "2026-07-15T19:46:14.3580696Z",
     "contractId":  "CC7MQBZ2WOXGLOMX5MDZ4IXT5WHEII7SUK6LMXXKUKOGLARDGG66AOJL",
     "demoBatchId":  2,
+    "revokedDemoCertificateId":  "demo-04",
+    "revokedDemoLeaf":  "073829ec19ca62bcb92d655db12f55c26e1ceece6455202b3e6c2c9b85ad78f8",
+    "revokedDemoTx":  "c6a437aae964b8fd6f59e7d2e907d719867cd3a3d319da7259755521836d2f0e",
     "genesisBatchId":  1,
     "network":  "testnet",
     "genesisTx":  "a304f1e36600f675ca6202bc10edecc7e1cd3d4c71ce72e97de747333e486946"

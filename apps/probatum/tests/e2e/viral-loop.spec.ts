@@ -4,7 +4,10 @@ import demo from "../../../../fixtures/probatum-testnet-demo.json";
 async function firstUnclaimedDemo(page: Page) {
   for (const certificate of demo.certificates) {
     await page.goto(`/verify/${certificate.routeId}`);
-    await expect(page.getByRole("heading", { name: "Valid" })).toBeVisible();
+    const valid = page.getByRole("heading", { name: "Valid", exact: true });
+    const revoked = page.getByRole("heading", { name: "Revoked", exact: true });
+    await expect(valid.or(revoked)).toBeVisible({ timeout: 90_000 });
+    if (await revoked.count()) continue;
     const claimed = page.getByText("Already claimed", { exact: true });
     const available = page.getByRole("button", { name: "Create passkey wallet" });
     await expect(claimed.or(available)).toBeVisible({ timeout: 90_000 });
