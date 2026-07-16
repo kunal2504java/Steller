@@ -18,6 +18,7 @@ export const SIM_SOURCE = "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCC
 export type ChainStats = {
   batches: string;
   claims: string;
+  sponsoredTxns: string;
   network: string;
   contractUrl: string;
   genesisTx: string;
@@ -26,6 +27,7 @@ export type ChainStats = {
 const FALLBACK: ChainStats = {
   batches: "—",
   claims: "—",
+  sponsoredTxns: "—",
   network: NETWORK,
   contractUrl: `https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}`,
   genesisTx: GENESIS_TX,
@@ -58,10 +60,12 @@ export async function getChainStats(): Promise<ChainStats> {
       simulateRead("batch_count"),
       simulateRead("claim_count"),
     ]);
+    const claimTotal = claims.toLocaleString("en-IN");
     return {
       ...FALLBACK,
       batches: batches.toLocaleString("en-IN"),
-      claims: claims.toLocaleString("en-IN"),
+      claims: claimTotal,
+      sponsoredTxns: claimTotal,
     };
   } catch {
     return FALLBACK;

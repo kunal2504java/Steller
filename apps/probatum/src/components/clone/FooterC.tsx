@@ -12,7 +12,7 @@ const COLS: { head: string; links: { label: string; href: string }[] }[] = [
   {
     head: "Builders",
     links: [
-      { label: "Candela kit", href: "https://github.com/kunal2504java/Steller" },
+      { label: "Candela kit", href: "/" },
       { label: "GitHub", href: "https://github.com/kunal2504java/Steller" },
       { label: "MIT license", href: "https://github.com/kunal2504java/Steller/blob/main/LICENSE" },
     ],

@@ -30,7 +30,7 @@ export default function UseCase({ stats }: { stats: ChainStats }) {
             genesis tx {stats.genesisTx.slice(0, 8)}…{stats.genesisTx.slice(-4)}
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <a href="https://probatum.app" className="pill-metal">
+            <a href="/probatum" className="pill-metal">
               Open Probatum →
             </a>
             <a href={stats.contractUrl} className="pill-ghost font-mono text-[13px]">

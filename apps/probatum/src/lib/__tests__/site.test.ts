@@ -7,6 +7,12 @@ import {
 } from "../site";
 
 describe("public verification URLs", () => {
+  it("uses Candela as the single public origin", () => {
+    expect(DEFAULT_SITE_ORIGIN).toBe("https://candela.dev");
+    expect(verificationUrl("proof_1", DEFAULT_SITE_ORIGIN))
+      .toBe("https://candela.dev/verify/proof_1");
+  });
+
   it("normalizes an explicit public origin", () => {
     expect(siteOrigin(" https://proof.example/launch/ ")).toBe("https://proof.example");
   });

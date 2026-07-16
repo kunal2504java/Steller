@@ -129,7 +129,7 @@ export default function VerificationView({
         <div className="verification-grid" aria-hidden="true" />
 
         <header className="verification-nav">
-          <Link href="/" className="verification-brand" aria-label="Probatum home">
+          <Link href="/probatum" className="verification-brand" aria-label="Probatum home">
             <span className="verification-mark" aria-hidden="true">
               <svg viewBox="0 0 20 20">
                 <path d="M 10 2 L 12 8 L 18 10 L 12 12 L 10 18 L 8 12 L 2 10 L 8 8 Z" />
@@ -235,7 +235,7 @@ export default function VerificationView({
                   Claim unavailable for this proof
                 </button>
               )}
-              <Link href="/" className="pill-ghost">Back to Probatum</Link>
+              <Link href="/probatum" className="pill-ghost">Back to Probatum</Link>
             </div>
           </aside>
         </section>

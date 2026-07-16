@@ -22,14 +22,14 @@ The user's hard requirements (from day one, still binding): easily adoptable · 
 
 | Thing | Status |
 |---|---|
-| Soroban contract v2 | **LIVE on testnet**, `CDB6674ZKXTKH6M25CJY75EAOWXE44G7VH3ZI7VNGDZHD475KXDQR3YV`, 19 Rust tests green |
+| Soroban contract v3 | **LIVE on testnet**, `CC7MQBZ2WOXGLOMX5MDZ4IXT5WHEII7SUK6LMXXKUKOGLARDGG66AOJL`, 25 Rust tests green |
 | `candela-kit` | Built + **proven end-to-end on live testnet** through its public React API. Publish-ready, **NOT published (gated)** |
-| `apps/probatum` (landing) | Complete — monochrome landing page, live on-chain stats |
-| `apps/candela` (dev landing) | Complete — builds clean, fully verified, merged `984500b` |
-| Probatum app flows (issue/verify/claim/share) | **Not built** — this is the next work |
-| Contract rev (v3) | **Not done** — consolidated redeploy, see §8 |
+| Unified web server | `apps/probatum`: Candela at `/`, Probatum at `/probatum`, proofs at `/verify/[id]`, sponsor API on the same origin |
+| `apps/candela` | Approved Candela landing/component source; legacy standalone preview remains buildable but is not the product server |
+| Probatum verify/claim/share | Complete and live-proven; issuer CSV/anchor UI remains out of scope |
+| Contract rev (v3) | Complete — one constructor redeploy, KAT genesis preserved, demo batch seeded |
 | Mainnet | **Not deployed** — testnet only so far |
-| Public deploy (Vercel/domain) | **Not done** — user is buying a domain (leaning `candela.dev` / `probatum.app`) |
+| Public deploy (Vercel/domain) | **Not done** — canonical single origin is `candela.dev` |
 
 **Live proof that the whole stack works** (from Plan 2, on testnet): a Playwright virtual authenticator created a passkey → smart wallet `CD67ZP6EXIQTFILVEMB6JIFJ47TVIGMKUA7JDY4A2YBMRABZNDYWWXIG` → landed a sponsored `register_issuer` in tx `2da1289548f8227342ce70fa46225572dfd50d6adbb3af5b650dfee385caf484`. That is not a mock. The kit really does this.
 
@@ -38,12 +38,12 @@ The user's hard requirements (from day one, still binding): easily adoptable · 
 ## 3. Repo map
 
 ```
-contracts/probatum/src/lib.rs   the Soroban contract (v2) — merkle batch anchoring
-contracts/probatum/src/test.rs  19 tests; setup idiom: env.register(ProbatumContract, (admin.clone(),))
+contracts/probatum/src/lib.rs   the Soroban contract (v3) — merkle batch anchoring
+contracts/probatum/src/test.rs  25 tests; setup idiom: env.register(ProbatumContract, (admin.clone(),))
 packages/candela-kit/           THE KIT (the product). src/core + src/react, tests, playground
 packages/spike/                 FROZEN Plan-1 spike. src/main.ts is the AUTHORITY for passkey call sequences
-apps/probatum/                  Probatum landing page (Next 15, port 3000, pkg name "probatum-web")
-apps/candela/                   Candela dev landing page (Next 15, port 3001, pkg name "candela-web")
+apps/probatum/                  UNIFIED Next server: Candela `/`, Probatum `/probatum`, verify/claim/API (port 3000)
+apps/candela/                   Candela landing component source + legacy standalone preview (do not deploy separately)
 deployments/testnet.json        SINGLE SOURCE OF TRUTH for on-chain values — never hardcode a contract id
 scripts/deploy-testnet.ps1      constructor deploy + genesis seeding (PowerShell)
 docs/DEV.md                     toolchain, Windows PATH quirk, spike findings, dev-vs-build clash
@@ -83,10 +83,11 @@ walletWasmHash: ecd990f0b45ca6817149b6175f79b32efb442f35731985a084131e8265c4cd90
 pnpm install                      # from repo root; workspace globs are packages/* and apps/*
 
 pnpm build:contract               # stellar contract build
-pnpm test:contract                # cargo test (19 tests)
+pnpm test:contract                # cargo test (25 tests)
 
-pnpm --filter probatum-web dev    # Probatum landing → http://localhost:3000
-pnpm --filter candela-web dev     # Candela dev page → http://localhost:3001
+pnpm --filter probatum-web dev    # ONE product server → Candela /, Probatum /probatum, proofs /verify/[id]
+pnpm --filter probatum-web build  # production build for the unified site
+pnpm --filter candela-web dev     # legacy Candela-only preview on :3001; normally do not run
 pnpm --filter candela-web test    # 7 unit tests
 pnpm --filter candela-web build   # ⚠️ STOP the dev server first (see §6)
 
@@ -133,17 +134,17 @@ These were all learned the hard way. They are not style preferences.
 ### Design
 - The look is a **monochrome "Cryptgen-clone"** system: true black (`--color-vault: #000000`), silver/graphite metallic pills, glass cards, gradient-masked `.fade-title` headlines, an arc-glow planet finale. Colour survives **only** in the small red wax logo mark and functional verification-state badges.
 - **Fonts: Inter + Fragment Mono ONLY.** The user instantly clocks "AI slop" fonts (Fraunces, Space Grotesk et al.) — do not introduce any new typeface. Inter here is deliberate: it's the cloned template's design font.
-- Tokens live in each app's `src/app/globals.css` `@theme` block. **The duplication between `apps/probatum` and `apps/candela` is deliberate** (two apps, two domains — YAGNI on a shared-ui package). Don't "fix" it unless a third consumer appears.
+- The deployed server is `apps/probatum`; it reuses the approved Candela component tree from `apps/candela` while `apps/probatum/src/app/globals.css` supplies the unified tokens and terminal styles. Keep the legacy standalone app buildable, but do not split the products back onto separate servers/domains.
 - Every animation degrades under `prefers-reduced-motion: reduce` to a static, complete final frame.
 - Gradient banding: never animate grain; SVG noise data-URIs need explicit `width`/`height` or they stretch instead of tile (reads as "moving pixels" — the user will notice).
 
 ---
 
-## 8. The contract (v2) — interface and gotchas
+## 8. The contract (v3) — interface and gotchas
 
-`contracts/probatum/src/lib.rs`. Live at `CDB6674Z…R3YV`. Admin `GAT3GZE2…RFBY`.
+`contracts/probatum/src/lib.rs`. Live at `CC7MQBZ2…GG66AOJL`. Admin `GAT3GZE2…RFBY`.
 
-Entry points: `__constructor(admin)` · `version() -> 2` · `pause(paused) -> Result` · `is_paused()` · `register_issuer` · `update_issuer` · `get_issuer` · `anchor_batch` · `get_batch` · `batch_count` · `revoke_batch` · `revoke_leaf` · `is_batch_revoked` · `is_leaf_revoked` · `claim` · `claim_of` · `claim_count` · `bump_batch` (auth-free, anyone can keep proofs alive).
+Entry points: `__constructor(admin)` · `version() -> 3` · `pause(paused) -> Result` · `is_paused()` · `register_issuer` · `update_issuer` · `get_issuer` · `anchor_batch` · `get_batch` · `batch_count` · `revoke_batch` · `revoke_leaf` · `is_batch_revoked` · `is_leaf_revoked` · `claim` · `claim_of` · `claim_count` · `bump_batch` (auth-free, anyone can keep proofs alive).
 
 Rules:
 - **`__constructor` is the sole Admin write site** — atomic deploy+init killed the v1 front-running hole. `AlreadyInitialized = 1` is **reserved**; the `Error` enum is **append-only** (discriminants are ABI).
@@ -152,14 +153,14 @@ Rules:
 - TTL: `TTL_THRESHOLD = 1_500_000`, `TTL_EXTEND_TO = 3_000_000`; `bump_persistent(env, key)` runs after all persistent `.set` sites.
 - **Merkle**: sorted-pair `sha256(min || max)`. Known-answer root `57c49ece895537b2bf5dfe5ba421bbf7666f12a00d28a81c29ba0faa52cd1902` pins the layout — a KAT test enforces it. **Any TypeScript port MUST use unsigned lexicographic compare + `min||max` concat** or proofs won't verify.
 
-### 🔴 Known time bomb (highest-priority pre-mainnet item)
-`batch_count`, `claim_count`, `Admin` and `Paused` live in **instance storage, whose TTL is never extended**. Instance entries archive on their own ~120-day clock independent of persistent entries. **The contract will silently archive ~120 days after deploy.** Fix this in the next contract rev.
+### TTL hardening (resolved in v3)
+Committed write paths and `bump_batch` extend instance + contract-code TTL; successful claims also extend their parent Batch key. Keep the v3 TTL tests intact.
 
 ---
 
 ## 9. What's next — the actual work queue
 
-The approved spec is `docs/superpowers/specs/2026-07-12-candela-page-and-viral-loop-design.md`. **Track 1 (Candela dev page) is DONE.** Tracks 2 and 3 are next and should be **one plan, one redeploy**:
+Tracks 1–3 in `docs/superpowers/specs/2026-07-12-candela-page-and-viral-loop-design.md` are complete. The unified-server follow-up puts Candela at `/` and Probatum at `/probatum` on the same Next server. The historical Track 2/3 checklist below is retained as design context, not pending work.
 
 ### Track 2 — contract rev (ONE consolidated testnet redeploy, `version()` → 3)
 Do all of these in a single rev so the contract stops churning:
@@ -180,7 +181,7 @@ Then: redeploy via the constructor path, update `deployments/testnet.json`, re-s
 live-prove `connectWallet` + reload hydration · type the `assembled` boundary (`{ built: Transaction }`) · make `useSubmit`'s "signing" phase observable · pause-gating tests for anchor/claim/revoke · `transpilePackages: ["candela-kit"]` in the consuming Next app · `CandelaProvider` network-prop identity (use a string preset) · post-hydration identity assertion.
 
 ### Other open threads
-- **Deploy**: user is buying a domain (leaning `candela.dev` + `probatum.app`). On purchase: update `metadataBase` in both apps' `layout.tsx` and the Hero/UseCase `https://probatum.app` links, then deploy (Vercel fits Next).
+- **Deploy**: deploy the single `apps/probatum` server to `candela.dev`; Candela is `/`, Probatum is `/probatum`, public proofs stay `/verify/[id]`. Do not create a second Probatum deployment/domain unless the user reverses the one-server decision.
 - **Before the gated npm publish**: add `packages/candela-kit/README.md` (it's in `files` but doesn't exist — npm page renders blank), verify the `candela-kit` name is free (fallback scope `@candela/kit`), decide whether to ship `dist/*.map`.
 - **Pre-mainnet**: leaf↔recipient binding threat model (no binding today — mitigate via confidential link delivery); merkle domain separation / depth bound; upgradeability decision; CI sponsor-key strategy.
 

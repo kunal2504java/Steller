@@ -2,7 +2,7 @@ export default function NavPill({ demoHref }: { demoHref: string }) {
   return (
     <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
       <nav className="flex w-full max-w-3xl items-center justify-between rounded-full border border-vellum/10 bg-vault/60 py-2 pl-3 pr-2 backdrop-blur-xl">
-        <a href="#" className="flex items-center gap-2.5">
+        <a href="/probatum" className="flex items-center gap-2.5">
           {/* wax-dot mark */}
           <span className="relative grid size-7 place-items-center rounded-full bg-gradient-to-br from-sealwax-hot via-sealwax to-[#4d0e1e]">
             <svg viewBox="0 0 20 20" className="size-3.5">
@@ -17,8 +17,8 @@ export default function NavPill({ demoHref }: { demoHref: string }) {
           </span>
         </a>
         <div className="hidden items-center gap-7 text-[13px] font-medium text-ash md:flex">
-          <a href="#product" className="transition-colors hover:text-vellum">
-            Product
+          <a href="/" className="transition-colors hover:text-vellum">
+            Candela
           </a>
           <a href="#proof" className="transition-colors hover:text-vellum">
             Proof

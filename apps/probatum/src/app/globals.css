@@ -760,3 +760,33 @@ body {
     scroll-behavior: auto;
   }
 }
+
+/* Candela terminal centerpiece, reused by the unified root route. */
+.term {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+
+.term-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 9999px;
+}
+
+.term-caret {
+  display: inline-block;
+  width: 0.55ch;
+  height: 1.05em;
+  translate: 0 0.16em;
+  background: var(--color-vellum);
+  animation: term-blink 1s steps(1) infinite;
+}
+
+@keyframes term-blink {
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .term-caret { animation: none; opacity: 0; }
+}

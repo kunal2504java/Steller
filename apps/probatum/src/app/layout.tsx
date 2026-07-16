@@ -17,14 +17,14 @@ const fragment = Fragment_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Probatum — certificates that can't be faked",
+  title: "Candela — Web3 UX should not suck",
   description:
-    "Seal certificates on Stellar. Anyone can verify them, forever — even if the issuer, or we, disappear. Free for hackathons, fests, academies and the 99% of issuers DigiLocker forgot.",
+    "Open-source passkey onboarding for Stellar. No seed phrase, browser extension or user-paid gas.",
   metadataBase: new URL(siteOrigin()),
   openGraph: {
-    title: "Probatum — certificates that can't be faked",
+    title: "Candela — passkey onboarding for Stellar",
     description:
-      "Sealed on Stellar. Verifiable by anyone, forever. PROBATUM EST.",
+      "A fingerprint becomes a smart wallet and a sponsored transaction.",
     type: "website",
   },
 };

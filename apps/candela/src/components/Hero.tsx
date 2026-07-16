@@ -35,7 +35,7 @@ export default function Hero() {
         </p>
         <div data-reveal className="mt-9 flex items-center justify-center gap-3">
           <CopyButton text="npm i candela-kit" />
-          <a href="https://probatum.app" className="pill-ghost">
+          <a href="/probatum" className="pill-ghost">
             See it live →
           </a>
         </div>

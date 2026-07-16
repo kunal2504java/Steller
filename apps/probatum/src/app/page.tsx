@@ -1,36 +1,30 @@
 import SmoothScroll from "@/components/SmoothScroll";
-import ScrollFX from "@/components/clone/ScrollFX";
-import NavPill from "@/components/clone/NavPill";
-import HeroC from "@/components/clone/HeroC";
-import FeatureBento from "@/components/clone/FeatureBento";
-import VerifyStack from "@/components/clone/VerifyStack";
-import CtaFinale from "@/components/clone/CtaFinale";
-import FooterC from "@/components/clone/FooterC";
+import CandelaScrollFX from "../../../candela/src/components/ScrollFX";
+import CandelaNav from "../../../candela/src/components/NavPill";
+import CandelaHero from "../../../candela/src/components/Hero";
+import CandelaTerminal from "../../../candela/src/components/Terminal";
+import CandelaHowItWorks from "../../../candela/src/components/HowItWorks";
+import CandelaUseCase from "../../../candela/src/components/UseCase";
+import CandelaWhyItMatters from "../../../candela/src/components/WhyItMatters";
+import CandelaFinale from "../../../candela/src/components/Finale";
 import { getChainStats } from "@/lib/chain";
-import { verificationQrDataUrl } from "@/lib/share";
-import { verificationUrl } from "@/lib/site";
-import demo from "../../../../fixtures/probatum-testnet-demo.json";
-import deployment from "../../../../deployments/testnet.json";
 
 export const revalidate = 120;
 
 export default async function Home() {
   const stats = await getChainStats();
-  const demoHref = `/verify/${demo.certificates[0].routeId}`;
-  const demoUrl = verificationUrl(demo.certificates[0].routeId);
-  const demoQrDataUrl = await verificationQrDataUrl(demoUrl);
-
   return (
     <SmoothScroll>
-      <ScrollFX />
-      <NavPill demoHref={demoHref} />
+      <CandelaScrollFX />
+      <CandelaNav />
       <main>
-        <HeroC stats={stats} demoHref={demoHref} demoQrDataUrl={demoQrDataUrl} demoTx={deployment.demoTx} />
-        <FeatureBento />
-        <VerifyStack demoHref={demoHref} />
-        <CtaFinale demoHref={demoHref} />
+        <CandelaHero />
+        <CandelaTerminal />
+        <CandelaHowItWorks />
+        <CandelaUseCase stats={stats} />
+        <CandelaWhyItMatters />
+        <CandelaFinale />
       </main>
-      <FooterC stats={stats} />
     </SmoothScroll>
   );
 }

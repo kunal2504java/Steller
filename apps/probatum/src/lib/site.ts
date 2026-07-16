@@ -1,4 +1,4 @@
-export const DEFAULT_SITE_ORIGIN = "https://probatum.app";
+export const DEFAULT_SITE_ORIGIN = "https://candela.dev";
 
 export function siteOrigin(value = process.env.NEXT_PUBLIC_SITE_ORIGIN): string {
   if (!value) return DEFAULT_SITE_ORIGIN;

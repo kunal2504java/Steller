@@ -20,7 +20,7 @@ export default function NavPill() {
         </a>
         <div className="hidden items-center gap-7 text-[13px] font-medium text-ash md:flex">
           <a href="#how" className="transition-colors hover:text-vellum">How it works</a>
-          <a href="#usecase" className="transition-colors hover:text-vellum">Use case</a>
+          <a href="/probatum" className="transition-colors hover:text-vellum">Probatum</a>
           <a
             href="https://github.com/kunal2504java/Steller"
             className="transition-colors hover:text-vellum"
