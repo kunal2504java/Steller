@@ -2,8 +2,8 @@ const STATES = [
   {
     badge: "VALID",
     tone: "text-candle border-candle/40",
-    name: "Ananya Sharma — HackBengaluru 2026",
-    line: "Merkle proof matches batch #1 · issuer verified · not revoked.",
+    name: "Build Station Demo Recipient — Proof of Completion",
+    line: "Merkle proof matches live batch #2 · issuer resolved · not revoked.",
     verdict: "Probatum est — it has been proven.",
     rot: "md:-rotate-1",
   },
@@ -25,7 +25,7 @@ const STATES = [
   },
 ];
 
-export default function VerifyStack() {
+export default function VerifyStack({ demoHref }: { demoHref: string }) {
   return (
     <section id="verify" className="mx-auto grid max-w-6xl gap-12 px-4 py-28 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:px-6 md:py-36">
       <div className="md:sticky md:top-32 md:self-start">
@@ -62,6 +62,9 @@ export default function VerifyStack() {
             </p>
           </article>
         ))}
+        <a href={demoHref} className="pill-metal mt-3 self-start">
+          Open the seeded VALID proof
+        </a>
       </div>
     </section>
   );

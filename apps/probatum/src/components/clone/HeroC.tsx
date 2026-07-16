@@ -1,40 +1,16 @@
 import type { ChainStats } from "@/lib/chain";
 
-/* deterministic sparkline + bars — no randomness, no hydration drift */
-const SPARK = [4, 6, 5, 9, 8, 12, 11, 16, 14, 19, 22, 27];
-const BARS = [7, 12, 9, 16, 13, 20, 24];
-const CLAIMS = [
-  { n: "Ananya Sharma", d: "claimed with a passkey", t: "2m" },
-  { n: "Rahul Verma", d: "claimed with a passkey", t: "9m" },
-  { n: "Meera Iyer", d: "verified by employer", t: "31m" },
-];
-
-function Spark() {
-  const max = Math.max(...SPARK);
-  const pts = SPARK.map(
-    (v, i) => `${(i / (SPARK.length - 1)) * 180},${46 - (v / max) * 40}`,
-  ).join(" ");
-  return (
-    <svg viewBox="0 0 180 48" className="h-12 w-full">
-      <polyline
-        points={pts}
-        fill="none"
-        stroke="#d4d4d8"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle
-        cx="180"
-        cy={46 - (SPARK[SPARK.length - 1] / max) * 40}
-        r="3"
-        fill="#ffffff"
-      />
-    </svg>
-  );
-}
-
-export default function HeroC({ stats }: { stats: ChainStats }) {
+export default function HeroC({
+  stats,
+  demoHref,
+  demoQrDataUrl,
+  demoTx,
+}: {
+  stats: ChainStats;
+  demoHref: string;
+  demoQrDataUrl: string;
+  demoTx: string;
+}) {
   return (
     <header className="relative overflow-hidden pb-10 pt-40 md:pt-48">
       {/* atmosphere: the clone's — black, a grid, one soft light */}
@@ -72,11 +48,11 @@ export default function HeroC({ stats }: { stats: ChainStats }) {
           data-reveal
           className="mt-9 flex items-center justify-center gap-3"
         >
-          <a href="#issue" className="pill-metal">
-            Start issuing — free
+          <a href={demoHref} className="pill-metal">
+            Verify the live demo
           </a>
-          <a href="#verify" className="pill-ghost">
-            Verify a certificate
+          <a href="#proof" className="pill-ghost">
+            See how it works
           </a>
         </div>
       </div>
@@ -88,39 +64,25 @@ export default function HeroC({ stats }: { stats: ChainStats }) {
         className="relative z-10 mx-auto mt-20 grid w-full max-w-6xl grid-cols-2 gap-3 px-4 md:grid-cols-12 md:gap-4 md:px-6"
       >
         <div className="glass-card col-span-2 p-5 md:col-span-3">
-          <p className="text-xs text-ash">Certificates sealed</p>
+          <p className="text-xs text-ash">Batches anchored</p>
           <p className="mt-1.5 text-3xl font-semibold tracking-tight text-vellum">
-            1,024
+            {stats.batches}
           </p>
           <p className="mt-0.5 font-mono text-[10px] text-candle">
-            +412 from latest batch
+            live contract counter
           </p>
-          <div className="mt-3">
-            <Spark />
-          </div>
+          <p className="mt-6 font-mono text-[10px] leading-relaxed text-ash">#1 KAT genesis<br />#2 shareable demo</p>
         </div>
 
         <div className="glass-card col-span-2 p-5 md:col-span-3">
-          <p className="text-xs text-ash">Verification checks</p>
+          <p className="text-xs text-ash">Passkey claims</p>
           <p className="mt-1.5 text-3xl font-semibold tracking-tight text-vellum">
-            2,381
+            {stats.claims}
           </p>
           <p className="mt-0.5 font-mono text-[10px] text-ash">
-            past 30 days · no logins required
+            read live from Stellar
           </p>
-          <div className="mt-4 flex h-10 items-end gap-1.5">
-            {BARS.map((b, i) => (
-              <span
-                key={i}
-                className="w-full rounded-sm bg-vellum/20"
-                style={{
-                  height: `${(b / 24) * 100}%`,
-                  backgroundColor:
-                    i === BARS.length - 1 ? "#ffffff" : undefined,
-                }}
-              />
-            ))}
-          </div>
+          <p className="mt-6 text-xs leading-relaxed text-ash">Every claim binds one certificate leaf to one Candela smart wallet. No token is minted.</p>
         </div>
 
         <div className="glass-card col-span-2 p-5 md:col-span-3">
@@ -158,45 +120,38 @@ export default function HeroC({ stats }: { stats: ChainStats }) {
         </div>
 
         <div className="glass-card col-span-2 p-5 md:col-span-7">
-          <p className="text-xs text-ash">Recent claims</p>
+          <p className="text-xs text-ash">Live proof artifacts</p>
           <ul className="mt-3 divide-y divide-vellum/8">
-            {CLAIMS.map((c) => (
-              <li key={c.n} className="flex items-center gap-3 py-2.5">
-                <span className="grid size-7 place-items-center rounded-full bg-sealwax font-mono text-[9px] text-candle-bright">
-                  {c.n.split(" ").map((w) => w[0])}
-                </span>
-                <span className="text-[13px] font-medium text-vellum">
-                  {c.n}
-                </span>
-                <span className="text-xs text-ash">{c.d}</span>
-                <span className="ml-auto font-mono text-[10px] text-ash">
-                  {c.t}
-                </span>
-              </li>
-            ))}
+            <li className="flex items-center gap-3 py-2.5">
+              <span className="font-mono text-[10px] text-candle">#01</span>
+              <span className="text-[13px] font-medium text-vellum">KAT genesis batch</span>
+              <span className="ml-auto font-mono text-[10px] text-ash">{stats.genesisTx.slice(0, 8)}…</span>
+            </li>
+            <li className="flex items-center gap-3 py-2.5">
+              <span className="font-mono text-[10px] text-candle">#02</span>
+              <span className="text-[13px] font-medium text-vellum">Public demo batch</span>
+              <span className="ml-auto font-mono text-[10px] text-ash">{demoTx.slice(0, 8)}…</span>
+            </li>
+            <li className="flex items-center gap-3 py-2.5">
+              <span className="font-mono text-[10px] text-candle">CLM</span>
+              <span className="text-[13px] font-medium text-vellum">On-chain claims</span>
+              <span className="ml-auto font-mono text-[10px] text-ash">{stats.claims}</span>
+            </li>
           </ul>
         </div>
 
         <div className="glass-card col-span-2 flex items-center gap-5 p-5 md:col-span-5">
-          <div className="shrink-0 rounded-lg bg-vellum p-2">
-            <div className="grid grid-cols-[repeat(10,4px)] grid-rows-[repeat(10,4px)]">
-              {"1110100101101110010100110101110010110101001101011100101101001011010110010110100101101".slice(0, 100)
-                .split("")
-                .map((bit, i) => (
-                  <span
-                    key={i}
-                    className={bit === "1" ? "bg-vault" : "bg-transparent"}
-                  />
-                ))}
-            </div>
-          </div>
+          <a href={demoHref} className="shrink-0 rounded-lg bg-vellum p-2" aria-label="Open the live demo verification">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={demoQrDataUrl} alt="QR code to the live Probatum demo" width={80} height={80} className="size-20" />
+          </a>
           <div>
             <p className="text-[13px] font-medium text-vellum">
               Every certificate ships with its QR
             </p>
             <p className="mt-1 text-xs leading-relaxed text-ash">
-              Scan → live check against the chain. Valid, revoked, or tampered
-              — in one second.
+              This code opens the seeded batch #2 proof. Scan → recompute →
+              live Stellar verdict.
             </p>
           </div>
         </div>

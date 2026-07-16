@@ -1,4 +1,4 @@
-export default function CtaFinale() {
+export default function CtaFinale({ demoHref }: { demoHref: string }) {
   return (
     <section
       id="issue"
@@ -29,17 +29,17 @@ export default function CtaFinale() {
 
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
         <h2 data-reveal className="fade-title text-4xl md:text-6xl">
-          Issue 1,000 certificates
+          Running an event?
           <br />
-          in five minutes. Free.
+          Issue with Probatum — coming next.
         </h2>
         <p data-reveal className="mx-auto mt-5 max-w-md text-[15px] leading-relaxed text-ash">
-          A CSV of names in, unforgeable proof out. No wallets, no jargon, no
-          onboarding call — sealed on Stellar while you watch.
+          The issuer CSV pipeline is the next build. Today, verify the live
+          seeded proof, claim it with a passkey, and inspect every line of source.
         </p>
         <div data-reveal className="mt-9 flex items-center justify-center gap-3">
-          <a href="#" className="pill-metal">
-            Start issuing now
+          <a href={demoHref} className="pill-metal">
+            Verify the live demo
           </a>
           <a
             href="https://github.com/kunal2504java/Steller"

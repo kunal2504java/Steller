@@ -99,7 +99,7 @@ export default function FeatureBento() {
             on-chain. Cost to you: zero — we sponsor the fees.
           </p>
           <p className="mt-5 break-all rounded-lg border border-vellum/8 bg-vault/60 px-3 py-2 font-mono text-[10px] leading-relaxed text-ash">
-            anchor_batch(root: 57c49ece…1902, count: 412) →{" "}
+            anchor_batch(root: 57c49ece…1902, count: 4) →{" "}
             <span className="text-candle">BatchAnchored ✓</span>
           </p>
         </div>

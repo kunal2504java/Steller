@@ -1,4 +1,4 @@
-export default function NavPill() {
+export default function NavPill({ demoHref }: { demoHref: string }) {
   return (
     <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
       <nav className="flex w-full max-w-3xl items-center justify-between rounded-full border border-vellum/10 bg-vault/60 py-2 pl-3 pr-2 backdrop-blur-xl">
@@ -23,12 +23,12 @@ export default function NavPill() {
           <a href="#proof" className="transition-colors hover:text-vellum">
             Proof
           </a>
-          <a href="#verify" className="transition-colors hover:text-vellum">
+          <a href={demoHref} className="transition-colors hover:text-vellum">
             Verify
           </a>
         </div>
-        <a href="#issue" className="pill-metal !px-5 !py-2.5 !text-[13px]">
-          Issue free
+        <a href={demoHref} className="pill-metal !px-5 !py-2.5 !text-[13px]">
+          Live proof
         </a>
       </nav>
     </div>

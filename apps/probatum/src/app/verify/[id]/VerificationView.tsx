@@ -95,9 +95,11 @@ function EvidenceRow({ label, value, href }: { label: string; value: string; hre
 export default function VerificationView({
   result,
   claimSlot,
+  shareSlot,
 }: {
   result: VerificationResult;
   claimSlot?: ReactNode;
+  shareSlot?: ReactNode;
 }) {
   const state = result.kind === "unavailable" ? "UNAVAILABLE" : result.state;
   const copy = COPY[state];
@@ -224,6 +226,8 @@ export default function VerificationView({
             <p className="verification-disclaimer proof-step">
               {disclaimer}
             </p>
+
+            {shareSlot && <div className="proof-step">{shareSlot}</div>}
 
             <div className="verification-actions proof-step">
               {claimSlot ?? (

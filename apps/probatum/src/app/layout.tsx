@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Fragment_Mono } from "next/font/google";
+import { siteOrigin } from "@/lib/site";
 import "./globals.css";
 
 /* Cryptgen-clone direction: Inter carries the whole page */
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
   title: "Probatum — certificates that can't be faked",
   description:
     "Seal certificates on Stellar. Anyone can verify them, forever — even if the issuer, or we, disappear. Free for hackathons, fests, academies and the 99% of issuers DigiLocker forgot.",
-  metadataBase: new URL("https://probatum.app"),
+  metadataBase: new URL(siteOrigin()),
   openGraph: {
     title: "Probatum — certificates that can't be faked",
     description:
